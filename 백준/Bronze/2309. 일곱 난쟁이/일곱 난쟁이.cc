@@ -1,27 +1,29 @@
-#include <iostream>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
- 
-int main(){
-    int tall[10];
-    int sum = 0;
-    for (int i = 0; i < 9;i++){
-        cin >> tall[i];
-        sum += tall[i]; // 전체 합
+// 2중루프로 두명을 거짓난쟁이로 가정하고 뺐을때 100이면 거짓난쟁이
+
+int main() {
+    ios::sync_with_stdio(0), cin.tie(0);
+
+    int num[9], sum = 0;
+
+    for(int i = 0 ; i < 9 ; i++) 
+    {
+        cin >> num[i];
+        sum += num[i];
     }
-    sort(tall, tall + 9); // 미리 정렬
-    for (int i = 0; i < 8; i++){
-        for (int j = i + 1; j < 9;j++){
-            if(sum-(tall[i]+tall[j]) == 100){ 
-                // 2명을 뺀 값의 합이 100이 되면
-                for (int z = 0; z < 9;z++){
-                    if(z != i  && z != j){ // 2명 빼고 출력
-                        cout << tall[z] << '\n';
-                    }
-                }
+
+    sort(num, num + 9);
+
+    for(int i = 0 ; i < 8 ; i++)
+    {
+        for(int j = i + 1 ; j < 9 ; j++)
+        {
+            if( ( sum - num[i] - num[j]) == 100){
+                for(int k = 0; k < 9; k++)
+                if(k != i && k != j) cout << num[k] << '\n';
                 return 0;
-            }   
+            }
         }
     }
-    return 0;
-} //8 min
+}
