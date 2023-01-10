@@ -1,28 +1,25 @@
 #include <bits/stdc++.h>
 using namespace std;
-// 0 ~ 9 1set
-// N : 1 ~ 1000000 자연수 , 필요한 set 수 ? 
-// 6&9 필요 set수랑 원래 필요 set수랑 비교
-// 6,9 3~4개 -> 2SET | 6,9 5~6개 -> 3SET
 
-int countNum[11];
-int main()
-{
-    ios::sync_with_stdio(0), cin.tie(0);
-    
-    int n, sixNineSet;
-    cin >> n;
+int main() {
+  ios::sync_with_stdio(0);
+  cin.tie(0);
+  
+  // ans = 1로 둠으로서 N = 0일때에 대한 예외처리가 자연스럽게 가능해짐
+  int N, a[10] = {}, ans = 1;
+  cin >> N;
+  
+  // 자리수 추출
+  while(N){
+    a[N%10]++;
+    N /= 10;
+  }
 
-    while(n) // 자릿수 count
-    {
-        countNum[ n % 10 ]++;
-        n /= 10;
-    }
-
-    sixNineSet = (countNum[6] + countNum[9] + 1) / 2;
-    countNum[6] = countNum[9] = 0;
-    sort(countNum, countNum+10);
-
-    if(sixNineSet > countNum[9]) cout << sixNineSet;
-    else cout << countNum[9];
+  for(int i = 0; i < 10; i++){
+    if(i == 6 || i == 9) continue;
+    ans = max(ans, a[i]);
+  }
+  // (a[6]+a[9])/2를 올림한 값이 6, 9에 대한 필요한 세트의 수이므로 (a[6]+a[9]+1)/2을 계산
+  ans = max(ans, (a[6]+a[9]+1)/2);
+  cout << ans;
 }
