@@ -5,8 +5,7 @@ int main() {
   ios::sync_with_stdio(0);
   cin.tie(0);
   
-  // ans = 1로 둠으로서 N = 0일때에 대한 예외처리가 자연스럽게 가능해짐
-  int N, a[10] = {}, ans = 1;
+  int N, a[10] = {}, ans = 0;
   cin >> N;
   
   // 자리수 추출
