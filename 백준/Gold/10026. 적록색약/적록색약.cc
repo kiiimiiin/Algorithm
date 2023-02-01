@@ -10,11 +10,11 @@ int n;
 int dx[4] = { 1, 0, -1, 0};
 int dy[4] = { 0, 1, 0, -1};
 int vis[102][102];
+queue<pair<int,int>> color;
 
 int colorNumBfs(char colorName)
 {
     int Num = 0;
-    queue<pair<int,int>> color;
     for(int i = 0 ; i < n; i++) // 색에 대한 bfs
     {
         for(int j = 0; j < n; j++)
@@ -45,7 +45,6 @@ int colorNumBfs(char colorName)
 int redgreenBfs()
 {
     int Num = 0;
-    queue<pair<int,int>> color;
     for(int i = 0 ; i < n; i++) 
     {
         for(int j = 0; j < n; j++)
