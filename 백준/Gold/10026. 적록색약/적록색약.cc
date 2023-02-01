@@ -40,7 +40,6 @@ int colorNumBfs(char colorName)
             }
         }
     }
-    for(int i = 0 ; i < 102 ; i++) fill(vis[i], vis[i] + 102, 0);
     return Num;
 }
 int redgreenBfs()
@@ -84,6 +83,7 @@ int main()
     int redNum = colorNumBfs('R');
     int greenNum = colorNumBfs('G');
     int blueNum = colorNumBfs('B');
+    for(int i = 0 ; i < 102 ; i++) fill(vis[i], vis[i] + 102, 0);
     int redgreenNum = redgreenBfs();
 
     cout << blueNum + redNum + greenNum << ' ' << redgreenNum + blueNum ;
