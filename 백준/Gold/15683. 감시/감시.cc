@@ -1,89 +1,100 @@
-#include <iostream>
-#include <vector>
-#include <tuple>
+#include <bits/stdc++.h>
 using namespace std;
+// CCTV가 주어지고 CCTV에는 고유 방향이 존재
+// 각 방향에 대한 모든 경우를 확인 Backtraking
+// 복잡도 4^8 * 64 << 1억 -> ok
+int n , m, emptyMin = 68;
 int board[10][10];
-int detectedBoard[10][10]; 
-int n , m, emptyMin = 100;
+int dirInfo[5] = {4, 2, 4, 4, 1};
 int dx[4] = {1, 0, -1, 0};
-int dy[4] = {0, 1, 0, -1}; // 남동북서
-vector<pair<int,int>> cctv; // cctv의 정보
+int dy[4] = {0, 1, 0, -1};
+vector<tuple<int,int,int>> cctv; // cctv type , x, y 
 
 void boardCopy(int desc[10][10], int src[10][10])
 {
-    for(int i = 0 ; i < n ; i++)
-        for(int j = 0; j < m ; j++)
+    for(int i = 0; i < n ; i++)
+        for(int j = 0 ; j < m ; j++)
             desc[i][j] = src[i][j];
-} 
+}
 
-void cctvDetect(int dir, int detectX, int detectY)
-{ // 해당 방향으로 cctv 감시
-    dir %= 4;
+void cctvDetect(int dir, int cctvX, int cctvY)
+{ //dir 한 방향 감시
+    dir %= 4 ;
+    int detectedX = cctvX;
+    int detectedY = cctvY;
     while(1)
     {
-        detectX += dx[dir];
-        detectY += dy[dir];
-        if(detectX < 0 || detectX >= n || detectY < 0 || detectY >= m ) break;
-        if(detectedBoard[detectX][detectY] == 6) break;
-        if(detectedBoard[detectX][detectY] != 0) continue;
-        detectedBoard[detectX][detectY] = 7; // 감시표시
+        detectedX += dx[dir];
+        detectedY += dy[dir];
+        if(detectedX < 0 || detectedX >= n || detectedY < 0 || detectedY >= m) break;
+        if(board[detectedX][detectedY] == 6) break; // 벽이거나 외부로 나가면 종료
+        if(board[detectedX][detectedY] != 0) continue;
+        board[detectedX][detectedY] = 7; // 감시표시
     }
 }
+void backTracking(int cctvNum) // cctv 확인 수
+{
+    if(cctvNum == cctv.size())
+    {   
+        int emptyNum = 0;
+        for(int i = 0; i < n; i++)
+            for(int j = 0 ; j < m; j++)
+                if(board[i][j] == 0) emptyNum++;
+        emptyMin = min(emptyMin, emptyNum);
+        return ;
+    } // 경우마다 빈공간 확인 ( cctv 확인 수가 cctv 갯수랑 같아질 때가 종료조건)
+
+    int cctvType, cctvX, cctvY;
+    tie(cctvType, cctvX, cctvY) = cctv[cctvNum];
+    for(int dir = 0 ; dir < dirInfo[cctvType - 1] ; dir++)
+    {
+        int tmp[10][10];
+        boardCopy(tmp , board);
+        if(cctvType == 1)
+        {
+            cctvDetect(dir, cctvX, cctvY);
+        }
+        if(cctvType == 2)
+        {
+            cctvDetect(dir, cctvX, cctvY);
+            cctvDetect(dir + 2, cctvX, cctvY);
+        }
+        if(cctvType == 3)
+        {
+            cctvDetect(dir, cctvX, cctvY);
+            cctvDetect(dir + 1, cctvX, cctvY);
+        }
+        if(cctvType == 4)
+        {
+            cctvDetect(dir, cctvX, cctvY);
+            cctvDetect(dir + 1, cctvX, cctvY);
+            cctvDetect(dir + 2, cctvX, cctvY);
+        }
+        if(cctvType == 5)
+        {
+            cctvDetect(dir, cctvX, cctvY);
+            cctvDetect(dir + 1, cctvX, cctvY);
+            cctvDetect(dir + 2, cctvX, cctvY);
+            cctvDetect(dir + 3, cctvX, cctvY);
+        }
+        backTracking(cctvNum + 1);
+        boardCopy(board, tmp);
+    }
+    
+}
+
 int main()
 {
     cin >> n >> m;
     for(int i = 0 ; i < n ; i++)
     {
-        for(int j = 0 ; j < m; j++)
+        for(int j = 0 ; j < m ; j++)
         {
             cin >> board[i][j];
-            if(board[i][j] != 0 && board[i][j] != 6) cctv.push_back({i,j}); // cctv 정보 수집
+            if(board[i][j] != 0 && board[i][j] != 6) // cctv정보 추출
+                cctv.push_back({board[i][j], i, j});
         }
     }
-    
-    for(int tmp = 0 ; tmp < (1<<(2*cctv.size())) ; tmp++) // cctv의 방향에 대한 모든 경우 확인
-    {
-        int brute = tmp; // tmp값은 고정되어야 하므로 새로운 변수로 방향 정보를 추출
-        boardCopy(detectedBoard, board); // 경우마다 빈 영역을 확인할 board생성
-        for(int i = 0; i < cctv.size(); i++)
-        { // 해당 경우의 각 cctv 순회
-            int dir = brute % 4;
-            brute /= 4;   
-            int x , y;
-            tie(x, y) = cctv[i];
-            if(board[x][y] == 1)
-            {
-                cctvDetect(dir, x, y);
-            }
-            else if(board[x][y] == 2)
-            {
-                cctvDetect(dir, x, y);
-                cctvDetect(dir + 2, x, y); 
-            }
-            else if(board[x][y] == 3)
-            {
-                cctvDetect(dir, x, y);
-                cctvDetect(dir+1, x, y);
-            }
-            else if(board[x][y] == 4)
-            {
-                cctvDetect(dir, x, y);
-                cctvDetect(dir+1, x, y);
-                cctvDetect(dir+2, x, y);
-            }
-            else
-            {
-                cctvDetect(dir, x, y);
-                cctvDetect(dir+1, x, y);
-                cctvDetect(dir+2, x, y);
-                cctvDetect(dir+3, x, y);
-            }
-        }    
-        int emptyNum = 0;
-        for(int i = 0 ; i < n; i++)
-        for(int j = 0; j < m; j++)
-            if(detectedBoard[i][j] == 0) emptyNum++; 
-        emptyMin = min(emptyMin, emptyNum);       
-    } // 모든 경우를 확인하며 빈공간의 최소수를 찾음
-    cout << emptyMin ;
+    backTracking(0);
+    cout << emptyMin; 
 }
