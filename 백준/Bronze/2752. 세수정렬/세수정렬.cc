@@ -1,25 +1,13 @@
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
-void swap(int& a, int& b)
-{
-    int tmp = a;
-    a = b;
-    b = tmp;
-}
-int main() 
+int main()
 {
     ios::sync_with_stdio(0), cin.tie(0);
 
-    int a[4];
-    
-    for ( int i = 0 ; i < 3 ; i++)
-        cin >> a[i];
-    
-    for ( int i = 0 ; i < 3; i++)
-         for ( int j = i + 1 ; j < 3 ; j++)
-                if( a[j] < a[i]) swap(a[i], a[j]);
+    int a[5]; // 숫자 3개 받을 배열
 
-    for (int i = 0  ; i < 3 ; i++)
-        cout << a[i] << " ";
+    for(int i = 0 ; i < 3 ; i++) cin >> a[i];
+    sort(a, a+3);
+    for(int i = 0 ; i < 3 ; i++) cout << a[i] << ' ';
 }
