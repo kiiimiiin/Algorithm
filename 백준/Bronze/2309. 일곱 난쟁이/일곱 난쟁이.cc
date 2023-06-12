@@ -1,27 +1,27 @@
 #include <bits/stdc++.h>
 using namespace std;
-// 2중루프로 두명을 거짓난쟁이로 가정하고 뺐을때 100이면 거짓난쟁이
 
-int main() {
-    ios::sync_with_stdio(0), cin.tie(0);
-
-    int num[9], sum = 0;
-
-    for(int i = 0 ; i < 9 ; i++) 
+int main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    
+    int height[9], sum = 0;
+    for(int i = 0; i < 9; i++)
     {
-        cin >> num[i];
-        sum += num[i];
-    }
-
-    sort(num, num + 9);
-
-    for(int i = 0 ; i < 8 ; i++)
+        cin >> height[i];
+        sum += height[i];
+    }  
+    
+    for(int i = 0; i < 9; i++)
     {
-        for(int j = i + 1 ; j < 9 ; j++)
+        for(int j = 0; j < 9; j++)
         {
-            if( ( sum - num[i] - num[j]) == 100){
-                for(int k = 0; k < 9; k++)
-                if(k != i && k != j) cout << num[k] << '\n';
+            if(i != j && sum - ( height[i] + height[j]) == 100)
+            {
+                height[i] = height[j] = 100;
+                sort(height, height + 9);
+                for(int k = 0; k < 7; k++)  cout << height[k] << '\n';
                 return 0;
             }
         }
