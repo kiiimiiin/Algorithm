@@ -37,10 +37,10 @@ void Rotate(int L, int x, int y){
     
     int c_board[65][65] = {};
     
-    for(int i = x ; i < x + (1 << L); i++){
-        for(int j = y ; j < y + ( 1 << L); j++){
-            c_board[j-y][ ( 1 << L ) - 1 - ( i - x )] 
-                = board[i][j];  
+    for(int i = 0 ; i <  (1 << L); i++){
+        for(int j = 0 ; j < ( 1 << L); j++){
+            c_board[j][ ( 1 << L ) - 1 - i] 
+                = board[i+x][j+y];  
         }
     }// x, y기준 보드값을 c_board에 회전한채로 0,0기준으로 일단저장
     
