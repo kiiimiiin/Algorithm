@@ -199,8 +199,7 @@ int main(void) {
 	}
 
 	sx = sy = (n - 1) / 2;
-
-	fill(marbleCnt, marbleCnt + n * n, -1);
+	
 	MakeSetting();
 	// 각 칸 번호 설정
 	while (m--) {
