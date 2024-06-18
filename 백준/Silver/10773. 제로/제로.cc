@@ -1,33 +1,33 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <stack>
 using namespace std;
 
-int main()
-{
+
+int main(void){
     ios::sync_with_stdio(0), cin.tie(0);
-    int k, num, size, sum = 0;
+    stack<int> s; 
+    int k;
+    int sum = 0; 
     
-    stack<int> S;
-
-    cin >> k;
-
-    while(k--)
-    {
-        cin >> num;
-        if(num == 0)
-        {
-            if(!S.empty()) S.pop(); 
-        }
-        else
-        {
-            S.push(num);
+    cin >> k; 
+    
+    for(int i = 0;  i < k; i++){
+        int n;
+        
+        cin >> n;
+        
+        if(n != 0){
+            s.push(n);
+        } else {
+            s.pop(); 
         }
     }
     
-    size = S.size();
-    while(size--)
-    {
-        sum += S.top();
-        S.pop();
+    while(!s.empty()){
+        sum += s.top();
+        s.pop();
     }
-    cout << sum << '\n';
+    
+    cout << sum; 
+    
 }
