@@ -1,17 +1,23 @@
 #include <vector>
 #include <algorithm>
-#include <unordered_set>
 using namespace std;
+int arr[2000002];
 
 int solution(vector<int> nums)
 {
     int answer = 0;
-    unordered_set<int> s;
-    for(auto e : nums){
-        s.insert(e);
-    }
+    int c_num = 0;
     
-    answer = min(s.size() , nums.size()/ 2);
+    for(auto e : nums){
+        if(arr[e]) continue;
+        arr[e]++;
+        c_num++;
+    }
+
+    
+    answer = min(c_num, (int)nums.size() / 2);
+    
+    
     return answer;
 }
 
