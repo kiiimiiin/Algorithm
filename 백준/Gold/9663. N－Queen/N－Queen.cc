@@ -1,43 +1,36 @@
-#include <iostream>
-
+#include <bits/stdc++.h>
 using namespace std;
+int isused1[40]; // y
+int isused2[40]; // x+y
+int isused3[40]; // x-y+n-1
 
-int N;
-int col[15];
-int result = 0;
-
-bool promising(int i)
+int cnt = 0;
+int n;
+void func(int cur) // cur행에 퀸을 두는 함수
 {
-    for(int j=0;j<i;j++)
+    if(cur == n)
     {
-        // 새로운 퀸과 기존의 퀸이 같은 행에 있거나 대각선에 있을 경우
-        if(col[j] == col[i] || abs(col[i]-col[j]) == (i-j))
-            return false;
+        cnt++;
+        return ;
     }
-    return true;
-}
-void N_Queen(int i)
-{
-    if(i == N)
-        result += 1;
-    else
+    for(int i = 0; i < n; i++)
     {
-        for(int j=0;j<N;j++)
-        {
-            col[i] = j;
-            if(promising(i))
-                N_Queen(i+1);
-        }
+        if(isused1[i] || isused2[cur+i] || isused3[cur-i+n-1]) // 존재한 퀸의 공격범위 내
+            continue;
+        isused1[i] = 1; 
+        isused2[cur+i] = 1;
+        isused3[cur-i+n-1] = 1;
+        func(cur+1); // 다음 행에 퀸을 둠 
+        isused1[i] = 0;
+        isused2[cur+i] = 0;
+        isused3[cur-i+n-1] = 0;
     }
 }
 
 int main()
 {
-    cin>>N;
-
-    N_Queen(0);
-
-    cout<<result<<endl;
-
-    return 0;
+    ios::sync_with_stdio(0), cin.tie(0);
+    cin >> n;
+    func(0);
+    cout << cnt;
 }
