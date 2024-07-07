@@ -1,26 +1,25 @@
-#include <bits/stdc++.h>
+#include <iostream>
 using namespace std;
-int arr[10];
 int n, m;
+int arr[10];
 
-void backTracking(int idx) // 현재 수열의 길이
-{
-    if(idx == m)
-    {
-        for(int i = 0; i < m ; i++)
-            cout << arr[i] << ' '; 
+void dfs(int k){ // k번째 택
+    if(k == m){
+        for(int i = 0 ; i < m; i++){
+            cout << arr[i] << ' ';
+        }
         cout << '\n';
         return ;
     }
     
-    for(int i = 1; i <= n; i++)
-    {
-        arr[idx] = i;
-        backTracking(idx + 1);
+    for(int i = 1 ; i <= n; i++){
+        arr[k] = i;
+        dfs(k + 1);
     }
 }
-int main()
-{
+
+int main(void){
+    ios::sync_with_stdio(0), cin.tie(0);
     cin >> n >> m;
-    backTracking(0);
+    dfs(0);
 }
