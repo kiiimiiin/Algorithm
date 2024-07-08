@@ -1,40 +1,40 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
 using namespace std;
 int n, m;
-vector<int> nArray;
-int mArray[10];
-bool isused[10002]; 
-void backTracking(int idx) // 현재 수열의 길이, idx에 수를 놓을 차례
-{
-    if(idx == m)
-    {
-        for(int i = 0; i < m; i++)
-            cout << mArray[i] << ' ';
+int marr[10];
+int narr[10];
+bool isused[10];
+
+void dfs(int k){
+    if(k == m){
+        for(int i = 0 ; i < m; i++){
+            cout << marr[i] << ' ';
+        }
         cout << '\n';
-        return ;
+        return;
     }
     
-    for( int i : nArray)
-    {
-        if(idx == 0 || i > mArray[idx - 1])
-        {
-            if(isused[i]) continue;
-            mArray[idx] = i;
+    for(int i = 0; i < n; i++){
+        if(marr[k-1] > narr[i] && k > 0) continue;
+        if(!isused[i]){
+            marr[k] = narr[i];
             isused[i] = true;
-            backTracking(idx + 1);
+            dfs(k + 1);
             isused[i] = false;
-        }   
+        }
     }
 }
-int main()
-{
+
+
+int main(void){
+    ios::sync_with_stdio(0), cin.tie(0);
+    
     cin >> n >> m;
-    for(int i = 0; i < n; i++)
-    {
-        int init;
-        cin >> init;
-        nArray.push_back(init);
-    }
-    sort(nArray.begin(), nArray.end());
-    backTracking(0);
+    
+    for(int i = 0 ; i < n; i++) cin >> narr[i];
+    sort(narr, narr+n);
+    
+    dfs(0);
+    
 }
