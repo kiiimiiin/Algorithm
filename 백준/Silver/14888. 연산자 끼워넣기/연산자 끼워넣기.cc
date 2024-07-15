@@ -1,49 +1,34 @@
-#include <iostream>
-#include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
-int arr[12];
-int op[4];
+
+int nums[12];
+int ops[12];  // ops[0]은 항상 더하기
 int n;
-int mx = -0x7f7f7f7f; 
-int mn = 0x7f7f7f7f;
+int mn = 0x7f7f7f7f, mx = -0x7f7f7f7f;
 
-void dfs(int k, int res) {
-	if (k == n - 1) {
-		mx = max(mx, res);
-		mn = min(mn, res);
-		return;
-	}
+int main() {
+  ios::sync_with_stdio(0);
+  cin.tie(0);
 
-	for (int i = 0; i < 4; i++) {
-		if (op[i] <= 0) continue;
-		op[i]--;
+  cin >> n;
+  for (int i = 0; i < n; i++)
+    cin >> nums[i];
+  for (int op = 0, idx = 1; op < 4; op++) {
+    int x; cin >> x;
+    while (x--)
+      ops[idx++] = op;
+  }
 
-		if (i == 0)
-			dfs(k + 1, res + arr[k + 1]);
-		else if (i == 1)
-			dfs(k + 1, res - arr[k + 1]);
-		else if (i == 2) 
-			dfs(k + 1, res * arr[k + 1]);
-		else if (i == 3)
-			dfs(k + 1, res / arr[k + 1]);
-
-		op[i]++;
-	}
-}
-
-
-int main(void) {
-	ios::sync_with_stdio(0), cin.tie(0);
-
-	cin >> n;
-
-	for (int i = 0; i < n; i++) cin >> arr[i];
-
-
-	for (int i = 0; i < 4; i++) {
-		cin >> op[i];
-	}
-
-	dfs(0, arr[0]);
-	cout << mx << '\n' << mn;
+  do {
+    int res = 0;
+    for (int i = 0; i < n; i++) {
+      if (ops[i] == 0) res += nums[i];
+      else if (ops[i] == 1) res -= nums[i];
+      else if (ops[i] == 2) res *= nums[i];
+      else res /= nums[i];
+    }
+    mx = max(mx, res);
+    mn = min(mn, res);
+  } while (next_permutation(ops + 1, ops + n));
+  cout << mx << '\n' << mn;
 }
