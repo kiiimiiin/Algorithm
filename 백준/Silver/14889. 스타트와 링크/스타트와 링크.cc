@@ -1,43 +1,53 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <math.h>
 using namespace std;
+int s[22][22];
+bool candi[22];
 int n;
-int board[22][22];
-int t;
+int mn = 0x7f7f7f7f;
 
-int main(void){
-    ios::sync_with_stdio(0), cin.tie(0);
-    cin >> n;
-    
-    for(int i = 0; i < n ; i++)
-        for(int j = 0; j < n ; j++)
-            cin >> board[i][j];
-            
-    vector<int> brute(n, 1);
-    fill(brute.begin(), brute.begin() + n / 2, 0); // 0 0 0 0 .. 1 1 1 1
-    
-    int mn = 0x7f7f7f7f;
-    do{
-        vector<int> start;
-        vector<int> link;
-        for(int i = 0 ; i < n; i++){
-            if(brute[i] == 0) start.push_back(i); // 0 1 2 3 
-            else link.push_back(i);
-        }
+void dfs(int k, int st) {
+	if (k == n / 2) {
+		int sum1, sum2, idx1, idx2;
+		int team1[11], team2[11];
+		
+		sum1 = sum2 = idx1 = idx2 = 0;
+		
 
-        
-        int sum_s, sum_l;
-        sum_s = sum_l = 0; 
-        for(int i = 0 ; i < start.size(); i++)
-            for(int j = i + 1; j < start.size(); j++)
-                sum_s += board[start[i]][start[j]] + board[start[j]][start[i]];
-        
-        for(int i = 0 ; i < link.size(); i++)
-            for(int j = i + 1; j < link.size(); j++)
-                sum_l += board[link[i]][link[j]] + board[link[j]][link[i]];
-        
-        int res = abs(sum_s - sum_l);
-        mn = min(mn, res);
-    }while(next_permutation(brute.begin(), brute.end()));
-    
-    cout << mn;
+		for (int i = 0; i < n; i++) {
+			if (candi[i]) team1[idx1++] = i;
+			else team2[idx2++] = i;
+		}
+
+			
+		for (int i = 0; i < n / 2; i++) {
+			for (int j = i + 1; j < n / 2; j++) {
+				sum1 += s[team1[i]][team1[j]] + s[team1[j]][team1[i]];
+				sum2 += s[team2[i]][team2[j]] + s[team2[j]][team2[i]];
+			}
+		}
+
+		mn = min(mn, abs(sum1 - sum2));
+		return;
+	}
+
+	for (int i = st; i < n; i++) {
+		candi[i] = true;
+		dfs(k + 1, i + 1);
+		candi[i] = false;
+	}
+}
+
+int main() {
+	ios::sync_with_stdio(0), cin.tie(0);
+	cin >> n; 
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			cin >> s[i][j];
+		}
+	}
+
+	dfs(0, 0);
+	cout << mn;
 }
