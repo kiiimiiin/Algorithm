@@ -1,18 +1,25 @@
 #include <bits/stdc++.h>
 using namespace std;
-int dp[1000005]; 
-int n;
+int x;
+int dist[1000002];
+const int MX  = 1000000;
+queue<int> Q;
 
 int main()
 {
-    ios::sync_with_stdio(0), cin.tie(0);
-    cin >> n;
-    dp[1] = 0;
-    for(int i = 2; i <= n; i++)
+    fill(dist, dist + MX, -1); // 방문 이력 존재하지 않음
+    cin >> x ; 
+    dist[x] = 0;
+    Q.push(x); // 정수 X에 대한 시작점
+    while(dist[1] == -1) 
     {
-        dp[i] = dp[i-1] + 1; // 어떤 정수에 대해서도 적용이 되는 연산 
-        if(i % 3 == 0) dp[i] = min(dp[i], dp[i/3] + 1);
-        if(i % 2 == 0) dp[i] = min(dp[i], dp[i/2] + 1);
+        int cur = Q.front(); Q.pop();
+        for( int nxt : {cur - 1 , (cur % 3 ? -1 : cur / 3) , (cur % 2 ? -1 : cur / 2 )})
+        {
+            if(nxt < 1 || dist[nxt] >= 0) continue;
+            dist[nxt] = dist[cur] + 1;
+            Q.push(nxt);
+        }
     }
-    cout << dp[n] ;
+    cout << dist[1];  
 }
