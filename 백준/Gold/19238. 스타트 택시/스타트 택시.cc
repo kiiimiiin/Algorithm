@@ -1,159 +1,165 @@
-#include <algorithm>
 #include <iostream>
-#include <utility>
 #include <queue>
-using namespace std; 
+#include <utility>
 #define X first
 #define Y second
-int dx[4] = { 1, 0, -1, 0 };
-int dy[4] = { 0, 1, 0, -1 };
-int board[20][20];
-int dist[20][20];
+using namespace std;
+
+struct Guest {
+	int sx, sy;
+	int dx, dy;
+	int isLived;
+};
+
+struct Taxi {
+	int x, y;
+	int gas;
+};
+
+Guest guest[402];
+const int dx[4] = { 1, 0, -1 ,0 };
+const int dy[4] = { 0, 1, 0, -1 };
+int board[22][22];
 int n, m;
-int turn;
+Taxi taxi; 
 
-struct Taxi{
-    int x,y;
-    int fuel;
-};
-
-struct Person{
-    int x,y;
-    int dest_x, dest_y;
-    bool is_existed; 
-};
-
-Person persons[401];
-Taxi taxi;
-
-bool is_prior(int i, int min_num){
-    return persons[i].x < persons[min_num].x ||
-        (persons[i].x == persons[min_num].x && persons[i].y < persons[min_num].y);
+bool OOB(int x, int y) {
+	return x < 0 || x >= n || y < 0 || y >= n; 
 }
 
-void Test(){
-    // 최단거리
-    cout << "\nTest:\n";
-    for(int i = 0 ; i < n; i++){
-        for(int j = 0; j < n; j++){
-            cout << dist[i][j] << ' ';
-        }
-        cout << '\n';
-    }
+bool Drive() {
+	// 1. 손님을 향해
+	queue<pair<int, int>>  q;
+	int dist[22][22]; 
+	for (int i = 0; i < n; i++) 
+		fill(dist[i], dist[i] + n, -1);
+
+	dist[taxi.x][taxi.y] = 0;
+	q.push({ taxi.x, taxi.y });
+
+	while (!q.empty()) {
+		auto cur = q.front(); q.pop();
+		for (int dir = 0; dir < 4; dir++) {
+			int nx = cur.X + dx[dir];
+			int ny = cur.Y + dy[dir];
+			if (OOB(nx, ny)) continue;
+			if (board[nx][ny] == 1 || dist[nx][ny] >= 0) continue;
+			dist[nx][ny] = dist[cur.X][cur.Y] + 1;
+			q.push({ nx,ny }); 
+		}
+	}
+
+	int minDist = 0x7f7f7f7f;
+	int minIdx = 0x7f7f7f7f; 
+	for (int i = 1; i <= m; i++) { // 손님들에 대한 거리 파악
+		if (!guest[i].isLived) continue;
+		if (dist[guest[i].sx][guest[i].sy] < minDist
+			|| dist[guest[i].sx][guest[i].sy] == minDist && guest[i].sx < guest[minIdx].sx
+			|| dist[guest[i].sx][guest[i].sy] == minDist && guest[i].sx == guest[minIdx].sx && guest[i].sy < guest[minIdx].sy) {
+			minDist = dist[guest[i].sx][guest[i].sy];
+			minIdx = i; 
+		}
+		
+	}
+
+	if (minDist == -1) // 못태우는 손님 존재
+		return false;
+
+	
+	if (minDist >= taxi.gas) // 연료 부족
+		return false;
+
+
+
+	taxi.gas -= minDist;
+	taxi.x = guest[minIdx].sx;
+	taxi.y = guest[minIdx].sy;
+
+	// 2. 해당 목적지를 향해
+
+	for (int i = 0; i < n; i++)
+		fill(dist[i], dist[i] + n, -1);
+
+	dist[taxi.x][taxi.y] = 0;
+	q.push({ taxi.x, taxi.y });
+
+	while (!q.empty()) {
+		auto cur = q.front(); q.pop();
+		for (int dir = 0; dir < 4; dir++) {
+			int nx = cur.X + dx[dir];
+			int ny = cur.Y + dy[dir];
+			if (OOB(nx, ny)) continue;
+			if (board[nx][ny] == 1 || dist[nx][ny] >= 0) continue;
+			dist[nx][ny] = dist[cur.X][cur.Y] + 1;
+			q.push({ nx,ny });
+		}
+	}
+	
+	if (dist[guest[minIdx].dx][guest[minIdx].dy] == -1) // 목적지 도달 x
+		return false;
+	
+	if (dist[guest[minIdx].dx][guest[minIdx].dy] > taxi.gas) // 연료 부족
+		return false;
+
+	taxi.gas -= dist[guest[minIdx].dx][guest[minIdx].dy];
+	taxi.gas += 2 * dist[guest[minIdx].dx][guest[minIdx].dy]; 
+	taxi.x = guest[minIdx].dx;
+	taxi.y = guest[minIdx].dy;
+	guest[minIdx].isLived = false;
+
+	return true;
+	
 }
 
-bool PersonToDest(){
-    queue<pair<int,int>> q;
-    for(int i = 0 ; i < 20; i++) fill(dist[i], dist[i] + 20, -1); 
-    
-    // 1. 택시 승객 까지 이동 ( 승객 중에 가장 최단거리로 이동해야함 )
-    dist[taxi.x][taxi.y] = 0;
-    q.push({taxi.x, taxi.y});
-    // 최단거리 계산
-    while(!q.empty()){
-        auto cur = q.front(); q.pop();
-        for(int dir = 0 ; dir < 4; dir++){
-            int nx = cur.X + dx[dir];
-            int ny = cur.Y + dy[dir];
-            if(nx < 0 || nx >= n || ny < 0 || ny >= n) continue;
-            if(board[nx][ny] == 1 || dist[nx][ny] >= 0) continue;
-            dist[nx][ny] = dist[cur.X][cur.Y] + 1;
-            q.push({nx,ny});
-        }
-    }
-    
-    // 최단거리 승객 탐색
-    int min_dist = 0x7f7f7f7f;
-    int min_num = 0x7f7f7f7f;
-    for(int i = 1 ; i <= m; i++){
-        if(!persons[i].is_existed) continue;
-        if(dist[persons[i].x][persons[i].y] == -1) continue; //도달이 안되는 승객
-        
-        if( dist[persons[i].x][persons[i].y] == min_dist && min_dist != 0x7f7f7f7f){
-            if(is_prior(i, min_num)){ // 같은 거리 승객 처리
-                min_num = i;
-                continue;
-            }
-        }
-        if( dist[persons[i].x][persons[i].y] < min_dist ){
-            min_dist = dist[persons[i].x][persons[i].y];
-            min_num = i;
-        }
-    }
-    
-    if(min_dist == 0x7f7f7f7f)  return false; // 도달 불가
-    if(taxi.fuel < min_dist)  return false; // 최단거리까지 연료 부족
-    
-    // 택시 좌표 변경 (탑승)
-    taxi.fuel -= min_dist;
-    taxi.x = persons[min_num].x;
-    taxi.y = persons[min_num].y;
-    
-    // 2. 승객 목적지 까지 이동
-    
-    // 최단거리 계산
-    for(int i = 0 ; i < 20; i++) fill(dist[i], dist[i] + 20, -1); 
-    dist[taxi.x][taxi.y] = 0; 
-    q.push({taxi.x, taxi.y});
-    while(!q.empty()){
-        auto cur = q.front(); q.pop();
-        for(int dir = 0 ; dir < 4; dir++){
-            int nx = cur.X + dx[dir];
-            int ny = cur.Y + dy[dir];
-            if(nx < 0 || nx >= n || ny < 0 || ny >= n) continue;
-            if(board[nx][ny] == 1 || dist[nx][ny] >= 0) continue;
-            dist[nx][ny] = dist[cur.X][cur.Y] + 1;
-            q.push({nx,ny});
-        }
-    }
-    //목적지 거리
-    int dest_dist = dist[persons[min_num].dest_x][persons[min_num].dest_y];
-    if(dest_dist == -1) return false; // 도달 불가
-    if(taxi.fuel < dest_dist)   return false;  // 목적지까지 연료 부족
-    
-    // 택시 좌표 변경 (목적지 수송)
-    taxi.fuel -= dest_dist;
-    taxi.fuel += 2 * dest_dist; 
-    taxi.x = persons[min_num].dest_x;
-    taxi.y = persons[min_num].dest_y;
-    persons[min_num].is_existed = false; 
-    turn++;
-    return true; 
+bool IsNoGuest() {
+	for (int i = 1; i <= m; i++) {
+		if (guest[i].isLived) return false;
+	}
+	return true;
 }
 
-int main(void){
-    // 1. N M 연료 
-    // 2. Board (벽,빈칸)
-    // 3. 택시 좌표
-    // 4. 승객 위치, 목적지 좌표
-    
-    cin >> n >> m >> taxi.fuel;
-    
-    for(int i = 0 ; i < n ; i++)
-        for(int j = 0; j < n ; j++)
-            cin >> board[i][j];
-    
-    cin >> taxi.x >> taxi.y;
-    taxi.x--; taxi.y--;
-    
-    for(int i = 1; i <= m; i++){
-        cin >> persons[i].x  >> persons[i].y >> 
-            persons[i].dest_x >> persons[i].dest_y;
-        persons[i].x--; persons[i].y--; 
-        persons[i].dest_x--; persons[i].dest_y--;
-        persons[i].is_existed = true;
-    }
-        
-    int flag;
-    while(1){
-        flag = 1;
-        for(int i = 1 ; i <= m; i++){
-            if(persons[i].is_existed) flag = 0;
-        }
-        if(flag) break; // 존재하는 승객이 없으면 (모든 승객 성공)
-        
-        if(!PersonToDest()) break; // 이동 실패
-    }
-    
-    cout << ( flag ? taxi.fuel : -1) ; 
+
+int main(void) {
+	ios::sync_with_stdio(0), cin.tie(0); 
+
+	cin >> n >> m >> taxi.gas;
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			cin >> board[i][j];
+		}
+	}
+
+	cin >> taxi.x >> taxi.y; 
+	taxi.x--; taxi.y--;
+
+	for (int i = 1; i <= m; i++) {
+		cin >> guest[i].sx >> guest[i].sy
+			>> guest[i].dx >> guest[i].dy; 
+		guest[i].sx--; guest[i].sy--; 
+		guest[i].dx--; guest[i].dy--;
+		guest[i].isLived = true;
+	}
+
+	int success = 0; 
+	while (1) {
+		if (IsNoGuest()) {
+			success = 1;
+			break;
+		}
+
+		if (!Drive()) {
+			break; 
+		}
+	}
+
+	cout << (success ? taxi.gas : -1); 
+	
 }
+
+/*
+	택시에서부터 BFS로 최단거리 손님찾음
+	다시 BFS로 목적지까지의 최단거리 찾음
+	손님 구조체 배열로 가장 작은 거리
+
+*/
