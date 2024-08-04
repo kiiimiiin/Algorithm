@@ -1,25 +1,34 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
 using namespace std;
-int dp[1002][3]; // 집의 갯수, 색에 대한 정보 r,g,b 
 int n;
-int r[1002], g[1002], b[1002];
+int d[1002][3];
+int cost[1002][3];
 
-int main()
-{
+int main(){
     cin >> n;
-    for(int i = 1 ; i <= n ; i++)
-    {
-        cin >> r[i] >> g[i] >> b[i];
+    
+    for(int i = 1; i <= n; i++){
+        cin >> cost[i][0] >> cost[i][1] >> cost[i][2];
     }
     
-    dp[1][0] = r[1]; dp[1][1] = g[1]; dp[1][2] = b[1];
-    for(int i = 2 ; i <= n ; i++)
-    {
-        dp[i][0] = min(dp[i-1][1] , dp[i-1][2] ) + r[i]; // i번쨰에 red를 골랐을 경우에 대한 최소
-        dp[i][1] = min(dp[i-1][2] , dp[i-1][0] ) + g[i]; // green
-        dp[i][2] = min(dp[i-1][0], dp[i-1][1] ) + b[i]; // blue 
-    } // i번째의 r,g,b를 골랐을 떄의 각각에 대한 최솟값이 구해짐
+    d[1][0] = cost[1][0];
+    d[1][1] = cost[1][1];
+    d[1][2] = cost[1][2];
     
-    cout << *min_element(dp[n], dp[n] + 3);
-    // 그 중에서 최소가 비용에 대한 최소다 
+    for(int i = 1; i <= n; i++){
+        d[i][0] = min(d[i-1][1], d[i-1][2]) + cost[i][0];
+        d[i][1] = min(d[i-1][0], d[i-1][2]) + cost[i][1];
+        d[i][2] = min(d[i-1][0], d[i-1][1]) + cost[i][2];
+    }
+    
+    cout << min({d[n][0],d[n][1],d[n][2]});
 }
+
+/*
+
+    d[i][j] : i번째 집까지 칠하는 비용의 최솟값, 단 j는 칠한 색깔
+    
+    d[k][0] = min(d[k-1][1], d[k-1][2]) + cost[k][0]
+
+*/
