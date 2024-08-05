@@ -26,7 +26,6 @@ pair<int, int> ProcessOOB(int x, int y) {
 
 void Move() {
 	for (int i = 0; i < fire.size(); i++) {
-		if (fire[i].m <= 0) continue;
 		int nx = fire[i].x + ( fire[i].s % n ) * dx[fire[i].d];
 		int ny = fire[i].y + ( fire[i].s % n ) * dy[fire[i].d];
 		tie(nx, ny) = ProcessOOB(nx, ny);
@@ -48,7 +47,6 @@ void Merge() {
 				int mm = 0;
 				int ms = 0;
 				int flag = 0;
-
 				vector<int> dir;
 				for (auto idx : board[i][j]) {
 					mm += fire[idx].m;
@@ -77,7 +75,6 @@ void Merge() {
 int getAns() {
 	int ret = 0;
 	for (auto f : fire) {
-		if (f.m <= 0) continue;
 		ret += f.m;
 	}
 	return ret;
@@ -105,7 +102,6 @@ int main(void) {
 
 
 /*
-
 	파이어볼 구조체 배열과
 	인덱스 보드
 */
