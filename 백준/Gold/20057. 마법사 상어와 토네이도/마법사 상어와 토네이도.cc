@@ -1,134 +1,136 @@
 #include <iostream>
 #include <algorithm>
-#include <cmath>
 using namespace std;
-#define X first
-#define Y second
-int board[502][502]; // 모래정보
-int wind[502][502];
-int dx[4] = { 1, 0, -1 , 0};
-int dy[4] = { 0, 1, 0, -1};
-int sdx[4][10] = {
-    { -1, -1 , 0, 0, 2, 0, 0, 1, 1, 1 },
-    { -1, 1, -2, 2, 0, -1, 1, -1, 1, 0}, 
-    { 1, 1, 0, 0, -2, 0, 0, -1, -1, -1},
-    { -1, 1, -2, 2, 0, 1, -1, 1, -1, 0}
-};
-int sdy[4][10] = {
-    { 1, -1, 2, -2, 0, 1, -1, 1, -1, 0},
-    {-1,-1, 0, 0, 2, 0, 0, 1, 1, 1},
-    { 1, -1, 2, -2, 0, 1, -1, 1, -1, 0},
-    { 1, 1, 0, 0, -2, 0, 0, -1, -1, -1}
-};
-// 0,1 : 1% | 1,2 : 2% | 4: 5% | 5, 6 : 7%  | 7, 8 : 10% | 9 : 55%  
 int n;
-vector<pair<int,int>> winds;
-int sum;
+int board[502][502];
+int dirBoard[502][502];
 
-void TestWind(){
-    cout << "\nTestWindDir:\n"; 
-    for(int i = 0 ; i < n; i++){
-        for(int j = 0 ; j < n; j++){
-            cout << wind[i][j] << ' ';
-        }
-        cout << '\n';
-    }
-}
-void TestSand(){
-    cout << "\nTestSand:\n";
-    for(int i = 0 ; i < n; i++){
-        for(int j = 0; j < n ; j++){
-            cout << board[i][j] << ' ';
-        }
-        cout << '\n'; 
-    }
-}
+const int dx[4] = { 0, 1, 0, -1 };
+const int dy[4] = { 1, 0, -1, 0 }; // 우하좌상
 
-void MakeWind(){
-    // 1. 토네이도 이동
-    int x,y, dir, middle;
-    x = y = 0; 
-    dir = 1;
-    middle = (0 + n -1) / 2 ;
-    
-    for(int i = 0 ; i < n; i++) fill(wind[i], wind[i] + n, -1);
-    
-    while(!(x == middle && y == middle))
-    {
-        wind[x][y] = ( dir + 2 ) % 4;
-        winds.push_back({x,y});
-        
-        int nx = x + dx[dir];
-        int ny = y + dy[dir];
-        // 초기 회전 및 이미 채워진칸
-        if(nx >= n || ny >= n || nx < 0 || wind[nx][ny] != -1){ 
-            dir = ( dir + 3 ) % 4;
-            nx = x + dx[dir];
-            ny = y + dy[dir];
-        }
-        x = nx;
-        y = ny;
-    }
-    wind[middle][middle] = 3;
-    winds.push_back({middle,middle});
+const int ratio[4][5][5] = {
+	{
+		{0,0,2,0,0},
+		{0,1,7,10,0},
+		{0,0,0,0,5},
+		{0,1,7,10,0},
+		{0,0,2,0,0},
+	}
+	,
+	{
+		{0,0,0,0,0},
+		{0,1,0,1,0},
+		{2,7,0,7,2},
+		{0,10,0,10,0},
+		{0,0,5,0,0},
+	}
+	,
+	{
+		{0,0,2,0,0},	
+		{0,10,7,1,0},
+		{5,0,0,0,0},
+		{0,10,7,1,0},
+		{0,0,2,0,0},
+	}
+	,
+		{
+		{0,0,5,0,0},
+		{0,10,0,10,0},
+		{2,7,0,7,2},
+		{0,1,0,1,0},
+		{0,0,0,0,0},
+	}
+};
+
+bool OOB(int x, int y) {
+	return x < 0 || x >= n || y < 0 || y >= n; 
 }
 
-void SpreadSand(int x, int y, int sdir){
-    int sand_sum = 0; 
-    for(int dir = 0 ; dir < 10; dir++){
-        int sand;
-        if(dir >= 0 && dir <= 8){
-            if(dir == 0 || dir == 1)
-                sand = (board[x][y] * 1) / 100;
-            else if(dir == 2 || dir == 3)
-                sand = (board[x][y] * 2) / 100;
-            else if(dir == 4)
-                sand = (board[x][y] * 5) / 100;
-            else if(dir == 5 || dir == 6)
-                sand = (board[x][y] * 7) / 100;
-            else if(dir == 7 || dir == 8)
-                sand = (board[x][y] * 10) / 100;
-            sand_sum += sand;  
-        }
-        else{
-            sand = board[x][y] - sand_sum;
-        }
-
-        int nx = x + sdx[sdir][dir];
-        int ny = y + sdy[sdir][dir];
-        if(nx < 0 || nx >= n || ny < 0 || ny >= n) sum += sand;
-        else board[nx][ny] += sand;
-    }
-    board[x][y] = 0;
-    
-}
-// winds 벡터는 보드끝에서 가운데까지 푸쉬했으므로
-// 차례차례 pop하면 가운데부터 보드끝까지 바람방향을 얻을 수 있음 
-void SpreadAllSand(){
-    // 2. 모래이동
-    while(!winds.empty()){ 
-        auto cur = winds.back(); winds.pop_back();
-        int dir = wind[cur.X][cur.Y];
-        int nx = cur.X + dx[dir];
-        int ny = cur.Y + dy[dir];
-        if(nx < 0 || nx >= n || ny < 0 || ny >= n) { break;}
-        
-        // 2.1 해당 위치 모래 흩어짐 
-        SpreadSand(nx,ny, dir);
-
-    }
+void MakeSnail() {
+	for (int i = 0; i < n; i++) 
+		fill(dirBoard[i], dirBoard[i] + n, -1);
+	
+	int x = 0;
+	int y = 0;
+	int dir = 0; 
+	dirBoard[x][y] = (dir + 2) % 4;
+	
+	
+	while (dirBoard[n / 2][n / 2] == -1) {
+		int nx = x + dx[dir];
+		int ny = y + dy[dir]; 
+		if (OOB(nx, ny) || dirBoard[nx][ny] != -1) {
+			dir = (dir + 1) % 4;
+			continue;
+		}
+		dirBoard[nx][ny] = (dir + 2) % 4;
+		x = nx; 
+		y = ny;
+	}
 }
 
-int main(void){
-    
-    cin >> n;
-    for(int i = 0 ; i < n; i++){
-        for(int j = 0 ; j < n; j++){
-            cin >> board[i][j];
-        }
-    }
-    
-    MakeWind();
-    SpreadAllSand();
-    cout << sum;
+int subSpread(int x, int y, int dir) {
+	int cDust = board[x][y];
+	int outDust = 0, sumDust = 0;
+	int nx, ny, a;
+
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 5; j++) {
+			int r = ratio[dir][i][j];
+			int dust = cDust * r / 100;
+			nx = i + (x - 2);
+			ny = j + (y - 2);
+			
+			if (OOB(nx, ny)) {
+				outDust += dust;
+			}
+			else {
+				board[nx][ny] += dust;
+			}
+			sumDust += dust;
+		}
+	}
+	
+	nx = x + dx[dir];
+	ny = y + dy[dir];
+	a = cDust - sumDust;
+	if (OOB(nx, ny))
+		outDust += a;
+	else
+		board[nx][ny] += a;
+
+	return outDust; 
 }
+
+int Spread() {
+	int outDust = 0;
+	int x = n / 2;
+	int y = n / 2; 
+	while (!(x == 0 && y == 0)) {
+		int dir = dirBoard[x][y];
+		int nx = x + dx[dir];
+		int ny = y + dy[dir];
+		outDust += subSpread(nx, ny, dir);
+		x = nx;
+		y = ny;
+	}
+	return outDust; 
+}
+
+
+int main(void) {
+	ios::sync_with_stdio(0), cin.tie(0);
+
+	cin >> n;
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			cin >> board[i][j]; 
+		}
+	}
+
+	MakeSnail();
+	int ans = Spread();
+	cout << ans; 
+}
+
