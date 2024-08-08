@@ -1,18 +1,11 @@
-#include <string>
-#include <vector>
 #include <algorithm>
-
+#include <vector>
 using namespace std;
 
 vector<int> solution(vector<int> arr) {
-    vector<int> answer;
-    
-    int mn = *min_element(arr.begin(), arr.end());
-    
-    for(int n : arr){
-        if(n == mn) continue;
-        answer.push_back(n);
+    if (arr.size() == 1) {
+        return { -1 };
     }
-    
-    return answer.empty() ? vector<int>(1,-1) : answer;
+    arr.erase(min_element(arr.begin(), arr.end()));
+    return arr;
 }
