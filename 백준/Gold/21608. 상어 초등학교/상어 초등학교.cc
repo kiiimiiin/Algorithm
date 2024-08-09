@@ -31,8 +31,8 @@ pair<int,int> Set(int num, int friendNum[4]) {
 	pair<int, int> pos;
 	pair<int, int> mx = { -0x7f7f7f7f, -0x7f7f7f7f };
 
-	for (int i = n - 1; i >= 0; i--) {
-		for (int j = n - 1; j >= 0; j--) {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
 			if (board[i][j]) continue; 
 			int nearEmpty = 0;
 			int nearFriend = 0;
@@ -53,7 +53,7 @@ pair<int,int> Set(int num, int friendNum[4]) {
 				}
 			}
 
-			if (make_pair(nearFriend, nearEmpty) >= mx) {
+			if (make_pair(nearFriend, nearEmpty) > mx) {
 				mx = make_pair(nearFriend, nearEmpty);
 				pos = make_pair(i, j);
 			}
