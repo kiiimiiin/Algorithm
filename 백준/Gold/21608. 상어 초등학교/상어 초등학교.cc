@@ -1,167 +1,126 @@
 #include <iostream>
-#include <vector>
-#include <queue>
 #include <tuple>
-#include <algorithm>
+#include <queue>
 #define X first
 #define Y second
-int dx[4] = { 1, 0, -1, 0 };
-int dy[4] = { 0, 1, 0, -1 };
+const int dx[4] = { 1, 0, -1, 0 };
+const int dy[4] = { 0, 1, 0, -1 };
 using namespace std;
-int board[22][22];
-int is_impossible[4002];
-int N, ans;
-vector<vector<int>> students;
 
+struct Info {
+	int near[4]; // 하, 우, 상, 좌 에 대한 정보
+	int stuNum = 0; // 학생정보
+};
 
-void TestBoard() {
-	cout << "TestBoard\n:";
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < N; j++) {
-			cout << board[i][j] << ' ';
-		}
-		cout << '\n';
-	}
-}
-bool OOB(int nx, int ny) {
-	return (nx < 0 || nx >= N || ny < 0 || ny >= N);
-}
+struct Student {
+	int num;
+	int friendNum[4]; 
+	int x = -1, y = -1;
+};
 
-pair<int,int> FindEmpty(vector<pair<int, int>> candi) {
-	// 2. 빈칸 인접칸 많은 자리 반환
-	vector<pair<int,int>> empty_candi[5];
-	for (auto pos : candi) {
-		int near_empty_num = 0;
-		for (int dir = 0; dir < 4; dir++) {
-			int nx = pos.X + dx[dir];
-			int ny = pos.Y + dy[dir];
-			if (OOB(nx, ny)) continue;
-			if (board[nx][ny] == 0) near_empty_num++;
-		}
-		empty_candi[near_empty_num].push_back({ pos.X, pos.Y });
-	}
+vector<Student> student;
+int board[402][402];
+int n;
 
-	pair<int, int> ret;
-	for (int i = 4; i >= 0; i--) {
-		if (empty_candi[i].empty()) continue;
-		// 2.1 빈칸 많은 칸 발견
-		
-		// 유일할 때 OR 유일하지 않을 때 -> 행,열 조건에 맞는 칸 탐색
-		// 예외 : 빈칸이 없는 경우도 3번조건에 맞춰서 가능. 
-		if(empty_candi[i].size() >= 2)
-			sort(empty_candi[i].begin(), empty_candi[i].end()); // 오름차순
-		ret = empty_candi[i].front(); break;
-	}
-	return ret;
+bool OOB(int x, int y) {
+	return (x < 0 || x >= n || y < 0 || y >= n);
 }
 
+pair<int,int> Set(int num, int friendNum[4]) {
 
+	pair<int, int> pos;
+	pair<int, int> mx = { -0x7f7f7f7f, -0x7f7f7f7f };
 
-tuple<int,int,int> ChooseSpace(vector<int> student) {
-	// 조건에 맞는 자리택하는 함수 
-	int num = student.front();
-
-	// 1. 좋아하는 학생 많은 칸 탐색
-	vector<pair<int, int>> candi[5]; // near_num에 대한 candi
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < N; j++) {
-			if (is_impossible[board[i][j]]) continue; // 이미 택한경우 스킵
-			int near_num = 0;
+	for (int i = n - 1; i >= 0; i--) {
+		for (int j = n - 1; j >= 0; j--) {
+			if (board[i][j]) continue; 
+			int nearEmpty = 0;
+			int nearFriend = 0;
 			for (int dir = 0; dir < 4; dir++) {
 				int nx = i + dx[dir];
 				int ny = j + dy[dir];
 				if (OOB(nx, ny)) continue;
-				
-				for (int k = 1; k < student.size(); k++)
-					if (board[nx][ny] == student[k]) near_num++; // 인접 좋아하는 학생수
+				if (board[nx][ny] == 0) {
+					nearEmpty++;
+				}
+				else {
+					for (int i = 0; i < 4; i++) {
+						if (friendNum[i] == board[nx][ny]) {
+							nearFriend++;
+							break;
+						}
+					}
+				}
 			}
 
-			candi[near_num].push_back({ i,j }); 
+			if (make_pair(nearFriend, nearEmpty) >= mx) {
+				mx = make_pair(nearFriend, nearEmpty);
+				pos = make_pair(i, j);
+			}
 		}
 	}
 
-	pair<int, int> pos;
 
-	for (int i = 4; i >= 0; i--) {
-		if (candi[i].empty()) continue; 
-		// 1.1 주변 좋아하는 학생 많은 칸 발견
-		// 1.1.1 유일한 칸 발견
-		// 예외 i == 0 -> 좋아하는 학생 있는 칸 없음
-		if (candi[i].size() == 1) { 
-			pos = candi[i].front();
-		}
-		// 1.1.2 유일하지 않은 경우 -> 빈칸 많은 칸 탐색
-		else {
-			pos = FindEmpty(candi[i]);
-		}
-		break;
-	}
-	/* 
-	// 1.2 주변 좋아하는 학생 없는경우 -> 빈칸 많은 칸 탐색
-	vector<pair<int, int>> all_poses; 
-	for (int i = 0; i < N; i++)
-		for (int j = 0; j < N; j++)
-			all_poses.push_back({ i,j });
-	pos = FindEmpty(all_poses);
-	return { num, pos.X, pos.Y };
-	*/
-	return { num, pos.X, pos.Y };
+	board[pos.X][pos.Y] = num;
+	return pos;
 
 }
+int Solve() {
 
-
-int main(void) {
-	ios::sync_with_stdio(0); cin.tie(0);
-
-	cin >> N;
-
-	for (int i = 0; i < N * N; i++) {
-		int num, preferred_num;
-		vector<int> student;
-		cin >> num;
-		student.push_back(num);
-		for (int j = 0; j < 4; j++) {
-			cin >> preferred_num;
-			student.push_back(preferred_num);
-		}
-		students.push_back(student);
-	} // front : num, 이후 : preferred_num
-
-	// 가장 먼저 들어온 학생먼저 
-	// 1. 좋아하는 학생 인접칸 많은 자리 (아예 없다면 2번넘어감)
-	// 2. 인접한 칸 중에 비어 있는 칸 많은 자리
-	// 3. 행 번호 작은자리, 같으면 열번호 작은자리
-
-	for (int i = 0; i < students.size(); i++){
-		vector<int> student = students[i];
-		auto pos = ChooseSpace(student);
-		board[get<1>(pos)][get<2>(pos)] = get<0>(pos);
-		is_impossible[get<0>(pos)] = 1;
+	// 학생 배치 
+	for (int i = 0; i < student.size(); i++) {
+		int x, y;
+		tie(x, y) = Set(student[i].num, student[i].friendNum);
+		student[i].x = x;
+		student[i].y = y;
 	}
 
-	for (int l = 0; l < students.size(); l++) {
-		auto student = students[l];
-		int num = students[l].front();
-		bool is_finded = 0;
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < N; j++) {
-				if (board[i][j] != num) continue;
-				int near_num = 0;
-				for (int dir = 0; dir < 4; dir++) {
-					int nx = i + dx[dir];
-					int ny = j + dy[dir];
-					if (OOB(nx, ny)) continue;
-					for (int k = 1; k < student.size(); k++)
-						if (board[nx][ny] == student[k]) near_num++;	
+	// 만족도 구하기 
+	int ret = 0;
+	for (int i = 0; i < student.size(); i++) {
+		int nearFriend = 0;
+		for (int dir = 0; dir < 4; dir++) {
+			int nx = student[i].x + dx[dir];
+			int ny = student[i].y + dy[dir];
+			if (OOB(nx, ny)) continue;
+			for (int j = 0; j < 4; j++) {
+				if (student[i].friendNum[j] == board[nx][ny]) {
+					nearFriend++;
+					break;
 				}
-				if (near_num == 1) ans += 1;
-				else if (near_num == 2) ans += 10;
-				else if (near_num == 3) ans += 100;
-				else if (near_num == 4) ans += 1000;
-				is_finded = 1; break;
 			}
-			if (is_finded) break;
 		}
+		if (nearFriend == 0) ret += 0;
+		else if (nearFriend == 1) ret += 1;
+		else if (nearFriend == 2) ret += 10;
+		else if (nearFriend == 3) ret += 100;
+		else ret += 1000;
 	}
+
+	return ret;
+
+}
+int main() {
+	ios::sync_with_stdio(0), cin.tie(0);
+
+	cin >> n; 
+	
+	for (int i = 0; i < (n * n); i++) {
+		Student stu;
+		cin >> stu.num;
+		for (int i = 0; i < 4; i++)
+			cin >> stu.friendNum[i];
+		student.push_back(stu); 
+	}
+
+
+	int ans = Solve();
 	cout << ans;
 }
+
+
+
+
+/*
+	학생 배열 테이블
+*/
