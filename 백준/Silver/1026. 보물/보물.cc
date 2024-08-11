@@ -1,41 +1,26 @@
 #include <iostream>
-#include <vector>
-#include <algorithm> 
+#include <algorithm>
 using namespace std;
-int n , t;
-int a[52];
-int b[52];
+int a[52], b[52];
+int n;
 
-int main()
-{
-   cin >> n;
-   
-   for(int i = 0; i < n; i++){
-	   cin >> a[i];
-   }
-   
-   for(int i = 0; i < n; i++){
-	   cin >> b[i];
-       
-   }
-   
-    sort(a, a + n, greater<int>()); 
-    sort(b, b + n);
+
+int main(void){
+    ios::sync_with_stdio(0), cin.tie(0);
+    cin >> n;
+    for(int i = 0 ; i < n; i++) cin >> a[i];
+    for(int i = 0 ; i < n; i++) cin >> b[i];
+    sort(a, a + n);
+    sort(b, b + n, greater<int>());
     
+    int ans = 0;
+    for(int i = 0 ; i < n; i++)
+        ans += a[i] * b[i];
     
-    int s = 0;
-    for(int i = 0 ; i < n; i++){
-        s += a[i] * b[i]; 
-    }
-    cout << s;
+    cout << ans;
 }
 
 /*
-
-	2 7 8 3 1
-	
-	1 1 0 1 6 
-  
-    a의 가장 큰애들이 b의 작은애들과 매칭되야함
-  
+    a와 b를 곱해서 최소값 s구하기
+    a의 작은수와 b의 큰수를 매핑
 */
