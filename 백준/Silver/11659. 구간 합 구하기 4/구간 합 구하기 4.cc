@@ -1,31 +1,27 @@
 #include <iostream>
-using namespace std; 
-int s[100002];
-int nums[100002]; 
+using namespace std;
+int n, m;
+int d[100002]; 
 
-int main(void){
+int main(){
     ios::sync_with_stdio(0), cin.tie(0);
-    int n, m;
-
     cin >> n >> m;
-    
-    for(int i = 1 ; i <= n; i++){
-        cin >> nums[i];        
-        s[i] = s[i-1] + nums[i];
+    for(int i = 1; i <= n; i++){
+        int x;
+        cin >> x;
+        d[i] = d[i-1] + x; 
     }
     
     while(m--){
-        int i, j; 
-        cin >> i >> j;
-        cout << s[j] - s[i-1] << '\n';
+        int i, j;
+        cin >> i >> j; 
+        cout << d[j] - d[i-1] << '\n';
     }
-    
 }
 
 /*
-    시간복잡도로 인해 선형합으로 구할 수 없음 
-    
-    i번째 수까지 합 d[i]
-    j번째 수까지 합 d[j]
-    i~j번째 수까지 합 d[j] - d[i-1]
+   sum을 처음부터 구해서 구간합을 구함
+   그냥 완탐으로 합구하면 시간초과
+    d[i] : i까지의 수열 합
+    d[i] = d[i-1] + a[i];
 */
