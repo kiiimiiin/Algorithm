@@ -2,7 +2,7 @@
 #include <algorithm>
 using namespace std;
 int n;
-int d[25], t[25], p[25];
+int d[22], t[16], p[16];
 
 int main(){
     ios::sync_with_stdio(0), cin.tie(0);
@@ -15,7 +15,7 @@ int main(){
     
     for(int i = n; i >= 1; i--){
         if(i + t[i] - 1 <= n)
-            d[i] = p[i] + *max_element(d + i + t[i], d + n + 1);
+            d[i] = p[i] + *max_element(d + i + t[i], d + 22);
         else
             d[i] = 0;
     }
