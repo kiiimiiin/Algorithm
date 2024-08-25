@@ -1,33 +1,37 @@
-#include <bits/stdc++.h>
+#include <string>
+#include <vector>
+#include <algorithm>
 using namespace std;
-
-int student[31];
+int wearCnt[33];
 
 int solution(int n, vector<int> lost, vector<int> reserve) {
     int answer = 0;
     
-    for(int i = 0; i < lost.size(); i++){
-        student[lost[i]]--;
-    }
     
-    for(int i = 0; i < reserve.size(); i++){
-        student[reserve[i]]++;
-    }
+    fill(wearCnt + 1, wearCnt + n + 1, 1);
     
-    for(int i = 1; i <= n; i++){
-        if(student[i] == -1){
-            if(student[i - 1] == 1){
-                student[i - 1] = 0;
-                student[i] = 0;
+    for(auto idx : lost)
+        wearCnt[idx]--;
+    
+    for(auto idx : reserve)
+        wearCnt[idx]++;
+    
+    for(int i = 1 ; i <= n; i++){
+        if(wearCnt[i] == 0){
+            if( i - 1 >= 1 && wearCnt[i-1] == 2 )
+            {
+                wearCnt[i]++;
+                wearCnt[i-1]--;
             }
-            else if(student[i + 1] == 1){
-                student[i + 1] = 0;
-                student[i] = 0;
+            else if(i + 1 <= n && wearCnt[i+1] == 2) {
+                wearCnt[i]++;
+                wearCnt[i+1]--;
             }
-        }   
-            
-        if(student[i] >= 0) answer++;
+        }
     }
     
+        
+    for(int i = 1; i <= n; i++) 
+        answer += wearCnt[i] >= 1 ? 1 : 0;       
     return answer;
 }
