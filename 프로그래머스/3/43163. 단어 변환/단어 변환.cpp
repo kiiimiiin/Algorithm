@@ -18,7 +18,7 @@ int solution(string begin, string target, vector<string> words) {
     int answer = 0;
     int n = words.size();
     int tIdx = -1;
-    vector<int> dist(n);
+    vector<int> vis(n);
     queue<pair<string, int>> q;
     
     for(int i = 0; i < n; i++){
@@ -32,20 +32,25 @@ int solution(string begin, string target, vector<string> words) {
     
     q.push({begin, 0});
     
-    while(!q.empty() || !dist[tIdx]){
+    while(!q.empty()){
         auto cur = q.front(); q.pop();
         string curs = cur.first;
         int level = cur.second;
         
+        if(curs == target && vis[tIdx]){
+            answer = level;
+            break;
+        }
+        
         for(int i = 0 ; i < n; i++){ // 하나만 다르면 q넣고 방문처리
-            if(dist[i]) continue;
+            if(vis[i]) continue;
             if(IsOneDifferent(curs, words[i])){
                 q.push({words[i], level + 1});
-                dist[i] = level + 1;
+                vis[i] = true;
             }
         }
     }
-    return dist[tIdx];
+    return answer;
 }
 
 
