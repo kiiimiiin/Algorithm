@@ -5,18 +5,17 @@ using namespace std;
 
 vector<int> solution(vector<int> progresses, vector<int> speeds) {
     vector<int> answer(1, 1);
-    int idx = 0; 
-    int mxDate = ( 100 - progresses[0] ) / speeds[0];
-    if((100 - progresses[0]) % speeds[0]) mxDate++;
+    int mxDate = ( 100 - progresses[0] ) / speeds[0] + 
+    ((100 - progresses[0]) % speeds[0] != 0);
     
     for(int i = 1; i < progresses.size(); i++){
-        int date = ( 100 - progresses[i] ) / speeds[i]; 
-        if((100 - progresses[i]) % speeds[i]) date++;
-        if(date <= mxDate) answer[idx]++;
+        int date = ( 100 - progresses[i] ) / speeds[i] +
+        ((100 - progresses[i]) % speeds[i] != 0);
+        
+        if(date <= mxDate) answer.back()++;
         else{
             mxDate = date;
             answer.push_back(1);
-            idx++;
         }
         
     }
