@@ -8,9 +8,9 @@ string solution(vector<string> participant, vector<string> completion) {
     string answer = "";
     unordered_multiset<string> ms(completion.begin(), completion.end());
     for(auto s : participant){
-        
-        if(ms.find(s) != ms.end()) 
-            ms.erase(ms.find(s));
+        auto it = ms.find(s);
+        if(it != ms.end()) 
+            ms.erase(it);
         else {
             answer = s;
             break;
