@@ -12,8 +12,10 @@ bool solution(vector<string> phone_book) {
     sort(phone_book.begin(), phone_book.end(), greater<string>());
     
     for(auto s : phone_book){
-        for(int i = 1; i <= s.length() - 1; i++){
-            if(set.find(s.substr(0, i )) != set.end())
+        string tmp = "";
+        for(int i = 0; i < s.length() - 1; i++){
+            tmp += s[i];
+            if(set.find(tmp) != set.end())
                 return false;
         }
     }
