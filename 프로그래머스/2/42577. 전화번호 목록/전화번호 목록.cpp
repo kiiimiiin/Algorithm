@@ -1,33 +1,27 @@
 #include <string>
-#include <vector>
-#include <iostream>
 #include <unordered_set>
+#include <algorithm>
+#include <vector>
+
 using namespace std;
 
 bool solution(vector<string> phone_book) {
-    bool flag[22] = {};
-    unordered_set<string> s;
+    bool answer = true;
+    unordered_set<string> set(phone_book.begin(), phone_book.end());
     
-    for(auto e : phone_book){
-        s.insert(e);
-        flag[e.size()] = true;
-    }
+    sort(phone_book.begin(), phone_book.end(), greater<string>());
     
-    for(auto e : s){
-        for(int i = 1 ; i <= 20; i++){
-            if(flag[i] && i < e.size()){
-                if(s.find(e.substr(0, i)) == s.end()) continue;
+    for(auto s : phone_book){
+        for(int i = 1; i <= s.length() - 1; i++){
+            if(set.find(s.substr(0, i )) != set.end())
                 return false;
-            }
         }
     }
     
     return true;
 }
 
-
 /*
-    글자수들을 기록해서 자기글자보다 작은 글자들에 대해 find 
-    -> 같으면 접두어가 아님! 자기자신을 찾음
-    O(20 * N)
+    글자수가 긴 순서대로, substr이 셋에 존재하는 지 확인 
+    O(1000000 * 20); 
 */
