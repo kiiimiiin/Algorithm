@@ -1,10 +1,4 @@
-#include <string>
-#include <vector>
-#include <queue>
-#include <utility>
-#include <algorithm>
-#include <unordered_set>
-#include <iostream>
+#include <bits/stdc++.h>
 #define X first 
 #define Y second
 using namespace std;
