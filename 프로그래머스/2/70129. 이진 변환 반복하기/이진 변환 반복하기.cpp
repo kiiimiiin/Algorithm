@@ -7,7 +7,7 @@ vector<int> solution(string s) {
     
     int zero = 0;
     int t=0;
-    while(s != to_string(1)){
+    while(s != "1"){
         t++;
         
         int cnt = 0;
