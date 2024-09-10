@@ -9,7 +9,7 @@ vector<int> solution(int n, vector<string> words) {
     
     for(i = 0 ; i < words.size(); i++){
         if(i > 0){
-            if(cw[cw.length() - 1] != words[i][0])
+            if(cw.back() != words[i].front())
                 break;
             if(s.find(words[i]) != s.end())
                 break;
