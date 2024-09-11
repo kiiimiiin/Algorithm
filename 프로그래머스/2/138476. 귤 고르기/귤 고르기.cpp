@@ -1,43 +1,29 @@
 #include <bits/stdc++.h>
-
 using namespace std;
 
-int solution(int k, vector<int> tangerine) {
-    int answer = 0;
-    int mx = *max_element(tangerine.begin(), tangerine.end());
-    vector<int> v(mx + 1, 0);
-    for(auto x : tangerine)
-        v[x]++;
-    
-    sort(v.begin(), v.end(), greater<int>());
-    
-    
-    for(auto cnt : v){
-        if(cnt == 0) continue;
-        k -= cnt;
-        answer++;
-        if( k <= 0 ) break;
-    }
-    
-    return answer;
+bool compare(pair<int,int>& a, pair<int,int>& b) {
+    if (a.second == b.second) 
+        return a.first < b.first;
+    return a.second > b.second;
 }
 
-/*
-    갯수가 많은 순으로 담아야함
-    
-    종류별 갯수를 우선순위 큐에 담는다.
+int solution(int k, vector<int> tangerine) {
+    int answer = 0, sum = 0;
+    map<int, int> ma;
 
-    1 2 2 3 3 4 5 5
-    
-    k = 6 ) 
-    1 2 2 1 2 
-    2 2 2 -> 3 종류 
-    
-    k = 4 ) 
-    2 2 -> 2 종류
-    
-    1 1 1 1 2 2 2 3
-    k = 2 ) 
-    4 3 1 -> 1 종류
-    
-*/
+    for(int i = 0; i < tangerine.size(); i++){
+        ma[tangerine[i]]++;
+    }
+
+    vector<pair<int,int>> vec(ma.begin(), ma.end());
+    sort(vec.begin(), vec.end(), compare);
+
+    for(int i = 0; i < vec.size(); i++){
+        if(sum >= k)
+            break;
+        sum += vec[i].second;
+        answer++;
+    }
+
+    return answer;
+}
