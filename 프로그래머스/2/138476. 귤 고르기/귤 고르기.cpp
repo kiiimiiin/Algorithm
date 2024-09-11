@@ -1,29 +1,46 @@
 #include <bits/stdc++.h>
+
 using namespace std;
 
-bool compare(pair<int,int>& a, pair<int,int>& b) {
-    if (a.second == b.second) 
-        return a.first < b.first;
-    return a.second > b.second;
-}
-
 int solution(int k, vector<int> tangerine) {
-    int answer = 0, sum = 0;
-    map<int, int> ma;
-
-    for(int i = 0; i < tangerine.size(); i++){
-        ma[tangerine[i]]++;
+    int answer = 0;
+    int cnt = 0;
+    priority_queue<int> pq; // 최대힙
+    
+    sort(tangerine.begin(), tangerine.end());
+    for(int i = 0; i <  tangerine.size(); i++){
+        cnt++;
+        if(i == tangerine.size() - 1 || tangerine[i] != tangerine[i+1]){
+            pq.push(cnt);
+            cnt = 0;
+        }
     }
 
-    vector<pair<int,int>> vec(ma.begin(), ma.end());
-    sort(vec.begin(), vec.end(), compare);
-
-    for(int i = 0; i < vec.size(); i++){
-        if(sum >= k)
-            break;
-        sum += vec[i].second;
+    while(k > 0){
+        k -= pq.top();
+        pq.pop();
         answer++;
     }
-
+    
     return answer;
 }
+
+/*
+    갯수가 많은 순으로 담아야함
+    
+    종류별 갯수를 우선순위 큐에 담는다.
+
+    1 2 2 3 3 4 5 5
+    
+    k = 6 ) 
+    1 2 2 1 2 
+    2 2 2 -> 3 종류 
+    
+    k = 4 ) 
+    2 2 -> 2 종류
+    
+    1 1 1 1 2 2 2 3
+    k = 2 ) 
+    4 3 1 -> 1 종류
+    
+*/
