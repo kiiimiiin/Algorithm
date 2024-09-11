@@ -4,22 +4,19 @@ using namespace std;
 
 int solution(int k, vector<int> tangerine) {
     int answer = 0;
-    int cnt = 0;
-    priority_queue<int> pq; // 최대힙
+    int mx = *max_element(tangerine.begin(), tangerine.end());
+    vector<int> v(mx + 1, 0);
+    for(auto x : tangerine)
+        v[x]++;
     
-    sort(tangerine.begin(), tangerine.end());
-    for(int i = 0; i <  tangerine.size(); i++){
-        cnt++;
-        if(i == tangerine.size() - 1 || tangerine[i] != tangerine[i+1]){
-            pq.push(cnt);
-            cnt = 0;
-        }
-    }
-
-    while(k > 0){
-        k -= pq.top();
-        pq.pop();
+    sort(v.begin(), v.end(), greater<int>());
+    
+    
+    for(auto cnt : v){
+        if(cnt == 0) continue;
+        k -= cnt;
         answer++;
+        if( k <= 0 ) break;
     }
     
     return answer;
