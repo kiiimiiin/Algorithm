@@ -1,33 +1,32 @@
-#include <iostream>
+#include <bits/stdc++.h>
 using namespace std;
 
-bool IsFighted(int a, int b){
-    return (a / 2 + a % 2) == (b / 2 + b % 2); 
+
+bool IsFighting(int a, int b){
+    return (a % 2 + a / 2 ) == ( b % 2 + b / 2); 
 }
 
 int solution(int n, int a, int b)
 {
     int answer = 1;
-    
-    while(!IsFighted(a, b)){
-        answer++;
+
+    while(!IsFighting(a, b)){
         a = a / 2 + a % 2;
         b = b / 2 + b % 2;
+        answer++;
     }
-
     return answer;
 }
 
 /*
-    1024 * 1024
+    4 -> 2 -> 1
+    7 -> 4 -> 2 
     
-    A : 4 -> 2 -> 1
+    4 -> 2 -> 1 -> 0
+    15 -> 8 -> 4 -> 2 
     
-    B : 7 -> 4 -> 2 
-    
-    x / 2  + x % 2 가 다음라운드 번호
-    
-    3 4 이런 경우가 싸움
-    
-    4 5 이런 경우는 싸우는게 아님
+
+    a, b가 서로 붙는것은 1,2 3,4 5,6 처럼 같은 영역에 포함되어야함 6,7도 안됨
+    즉 다음처리가 같은 번호로 수렴해야됨 3,4 -> 2 / 5,6 -> 3
+
 */
