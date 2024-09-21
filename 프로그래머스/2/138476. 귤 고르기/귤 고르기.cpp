@@ -1,21 +1,18 @@
 #include <bits/stdc++.h>
-
 using namespace std;
 
 int solution(int k, vector<int> tangerine) {
     int answer = 0;
-    int cnt = 0;
+    unordered_map <int,int> m;
     priority_queue<int> pq; // 최대힙
     
-    sort(tangerine.begin(), tangerine.end());
-    for(int i = 0; i <  tangerine.size(); i++){
-        cnt++;
-        if(i == tangerine.size() - 1 || tangerine[i] != tangerine[i+1]){
-            pq.push(cnt);
-            cnt = 0;
-        }
+    for(auto x : tangerine)
+        m[x]++;
+    
+    for(auto x : m){
+        pq.push(x.second);
     }
-
+    
     while(k > 0){
         k -= pq.top();
         pq.pop();
@@ -26,21 +23,18 @@ int solution(int k, vector<int> tangerine) {
 }
 
 /*
-    갯수가 많은 순으로 담아야함
+    1 3 2 5 4 5 2 3
     
-    종류별 갯수를 우선순위 큐에 담는다.
+    2 2 3 3 5 5 1 4
+    
+    2 2 2 1 1
+    
+    6 -2 -2 -2 => 3 카운트
+    6 -2 -2 -1 -1 => 4 카운트
+    
+    
+    2 3 5를 고르면 6개
+    갯수가 많은 순으로 내림차순 ( 종류별 갯수에 대해 알아야함 -> 해시셋)
 
-    1 2 2 3 3 4 5 5
-    
-    k = 6 ) 
-    1 2 2 1 2 
-    2 2 2 -> 3 종류 
-    
-    k = 4 ) 
-    2 2 -> 2 종류
-    
-    1 1 1 1 2 2 2 3
-    k = 2 ) 
-    4 3 1 -> 1 종류
-    
+    O(n) + O(nlogn)
 */
