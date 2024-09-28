@@ -2,24 +2,27 @@
 #include <iostream>
 using namespace std;
 
-int main(void){
+int main()
+{
     ios::sync_with_stdio(0), cin.tie(0);
-    int n, x;
-    priority_queue<int, vector<int>, greater<int>> pq; // 최소힙
-    
+    int n;
+    priority_queue<int, vector<int>, greater<int>> pq;
     cin >> n;
     
-    for(int i = 0 ; i <  n; i++){
-        cin >> x;
-        if(x != 0) pq.push(x);
-        else{
-            if(!pq.empty()){
+    while(n--){
+        int init;
+        cin >> init;
+        if(init){
+            pq.push(init);
+        } else{
+            if(pq.empty())
+                cout << "0\n";
+            else{
                 cout << pq.top() << '\n';
                 pq.pop();
             }
-            else{
-                cout << "0\n";
-            }
         }
     }
+    
+    return 0;
 }
