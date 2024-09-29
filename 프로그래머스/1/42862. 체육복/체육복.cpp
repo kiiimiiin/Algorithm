@@ -1,37 +1,35 @@
 #include <string>
 #include <vector>
-#include <algorithm>
 using namespace std;
-int wearCnt[33];
+int clothes[32];
 
 int solution(int n, vector<int> lost, vector<int> reserve) {
     int answer = 0;
+    fill(clothes, clothes + 32, 1);
     
-    
-    fill(wearCnt + 1, wearCnt + n + 1, 1);
-    
-    for(auto idx : lost)
-        wearCnt[idx]--;
-    
-    for(auto idx : reserve)
-        wearCnt[idx]++;
+    for(auto num : lost)
+        clothes[num]--;
+    for(auto num : reserve)
+        clothes[num]++;
     
     for(int i = 1 ; i <= n; i++){
-        if(wearCnt[i] == 0){
-            if( i - 1 >= 1 && wearCnt[i-1] == 2 )
-            {
-                wearCnt[i]++;
-                wearCnt[i-1]--;
-            }
-            else if(i + 1 <= n && wearCnt[i+1] == 2) {
-                wearCnt[i]++;
-                wearCnt[i+1]--;
-            }
+        if(clothes[i] == 2){
+            if(clothes[i-1] == 0)
+                clothes[i-1]++;
+            else if(clothes[i+1] == 0)
+                clothes[i+1]++;
+            clothes[i]--;
         }
     }
     
-        
-    for(int i = 1; i <= n; i++) 
-        answer += wearCnt[i] >= 1 ? 1 : 0;       
+    for(int i = 1 ; i <= n; i++)
+        if(clothes[i]) answer++;
+    
     return answer;
 }
+
+/*
+    greedy)
+    1부터 n번 학생까지 여벌이 있는 학생이면 
+    앞번호가 옷이없으면 줌- 앞번호 없으면 뒷번호에게 줌
+*/
