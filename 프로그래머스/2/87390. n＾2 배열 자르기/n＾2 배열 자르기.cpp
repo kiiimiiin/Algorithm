@@ -9,9 +9,7 @@ vector<int> solution(int n, long long left, long long right) {
     for(long long i = left; i <= right; i++){
         int r = i / n;
         int c = i % n;
-        int num = r + 1;
-        if ( c > r ) num += c - r;
-        answer.push_back(num);
+        answer.push_back(max(r, c) + 1);
     }
     return answer;
 }
