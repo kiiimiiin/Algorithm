@@ -1,58 +1,20 @@
 #include <iostream>
-#include <vector>
-#include <algorithm>
-#define X first
-#define Y second
+const int dx[8] = { -1, -1, 0, 1, 1, 1, 0, -1 };
+const int dy[8] = { 0, -1, -1, -1, 0, 1, 1, 1 };
 using namespace std;
-int dx[8] = { -1, -1, 0, 1, 1, 1, 0, -1 };
-int dy[8] = { 0, -1, -1, -1, 0, 1, 1, 1 }; 
+int board[4][4]; // 물고기 보드
 int mx = -0x7f7f7f7f;
 
 struct Fish {
-	int num, dir;
-	bool isLive = true;
+	int x, y;
+	int dir;
+	bool isLived;
 };
 
-struct Shark {
-	int x, y, dir;
-};
-
-vector<pair<int,int>> fishPos(18); // 번호에 대한 위치
-Fish fish[6][6]; // 물고기 번호, 방향, 생사여부
+Fish fish[17];
 
 
-bool OOB(int x, int y) {
-	return (x < 0 || x >= 4 || y < 0 || y >= 4);
-}
-void MoveFish(Shark s) {
-	for (int i = 1; i <= 16; i++) {
-		if (!fish[fishPos[i].X][fishPos[i].Y].isLive) 
-			continue; // 죽은 물고기
-
-		auto cur = fishPos[i];
-		Fish f = fish[cur.X][cur.Y];
-
-
-		for (int dd = 0; dd < 8; dd++) {
-			int nd = (f.dir + dd) % 8; 
-			int nx = cur.X + dx[nd];
-			int ny = cur.Y + dy[nd];
-			if (OOB(nx, ny) || nx == s.x && ny == s.y)
-				continue; 
-
-			fishPos[i] = { nx, ny };
-			fishPos[fish[nx][ny].num] = { cur.X, cur.Y };
-
-			Fish tmp = fish[nx][ny];
-			fish[nx][ny] = { i, nd };
-			fish[cur.X][cur.Y] = tmp;
-			break;
-		}
-	}
-}
-
-void Copy(Fish desc[6][6], Fish src[6][6], 
-	vector<pair<int,int>>& desc2, vector<pair<int, int>>& src2) {
+void Copy(int desc[4][4], int src[4][4], Fish fdesc[17], Fish fsrc[17]) {
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			desc[i][j] = src[i][j];
@@ -60,62 +22,105 @@ void Copy(Fish desc[6][6], Fish src[6][6],
 	}
 
 	for (int i = 1; i <= 16; i++)
-		desc2[i] = src2[i];
+		fdesc[i] = fsrc[i];
+}
+bool OOB(int x, int y) {
+	return x < 0 || x >= 4 || y < 0 || y >= 4;
 }
 
-void dfs(Shark s, int sum) {
-	
-	// 0. eat
-	if (fish[s.x][s.y].isLive) {
-		fish[s.x][s.y].isLive = false;
-		s.dir = fish[s.x][s.y].dir; 
-		sum += fish[s.x][s.y].num;
-		mx = max(mx, sum);
-	}
 
-	// 1. 물고기이동
-	MoveFish(s);
-	Fish tmp1[6][6];
-	vector<pair<int, int>> tmp2(18);
-	Copy(tmp1, fish, tmp2, fishPos);
+void MoveFish(int sx, int sy) {
+	for (int i = 1; i <= 16; i++) {
+		if (!fish[i].isLived) continue;
 
-	// 2. 상어이동
-	for (int k = 1; k <= 3; k++) {
-		int nx = s.x + k * dx[s.dir];
-		int ny = s.y + k * dy[s.dir];
-		if (OOB(nx, ny)) break;
-		if (!fish[nx][ny].isLive) continue;
+		int nx, ny, nd, dd;
+
+		for (dd = 0; dd < 8; dd++) {
+			nd = (fish[i].dir + dd) % 8;
+			nx = fish[i].x + dx[nd];
+			ny = fish[i].y + dy[nd];
+			if (OOB(nx, ny) || (nx == sx && ny == sy)) continue;
+			break;
+		}
 		
-		// 물고기 존재
-		dfs({ nx,ny,s.dir }, sum);
+		
+		if (dd == 8) continue;
 
-		Copy(fish, tmp1,fishPos, tmp2); // 원복 
-	}
-}
+		if (board[nx][ny] >= 1 && board[nx][ny] <= 16) {
+			Fish f = fish[i];
 
+			fish[i].x = nx;
+			fish[i].y = ny;
+			fish[i].dir = nd;
+			fish[board[nx][ny]].x = f.x;
+			fish[board[nx][ny]].y = f.y;
 
-int main(void) {
-	
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			cin >> fish[i][j].num >> fish[i][j].dir; 
-			fish[i][j].dir--;
-			fishPos[fish[i][j].num] = { i,j };
+			board[f.x][f.y] = board[nx][ny];
+			board[nx][ny] = i;
+			
+		}
+		else if (board[nx][ny] == 0) {
+			Fish f = fish[i];
+
+			fish[i].x = nx;
+			fish[i].y = ny;
+			fish[i].dir = nd;
+
+			board[f.x][f.y] = 0;
+			board[nx][ny] = i;
 		}
 	}
+}
+
+void dfs(int eatten, int sx, int sy, int sd) {
 	
-	Shark s;
+	// 1. 상어자리 물고기 섭취
+	fish[board[sx][sy]].isLived = false;
+	board[sx][sy] = 0;
+	mx = max(mx, eatten);
 
 
-	s = { 0, 0, -1 }; 
+	// 2. 물고기 이동
+	MoveFish(sx, sy);
 
-	dfs(s, 0);
+	// 3. 상어 이동
+	int tmp[4][4];
+	Fish ftmp[17];
+	Copy(tmp, board, ftmp, fish); 
 
-	cout << mx; 
+	for (int p = 1; p <= 3; p++) {
+		int nx = sx + p * dx[sd];
+		int ny = sy + p * dy[sd];
+		if (OOB(nx, ny) || board[nx][ny] == 0) continue;
+		
+		dfs(eatten + board[nx][ny], nx, ny, fish[board[nx][ny]].dir);
+
+		Copy(board, tmp, fish, ftmp);
+	}
+
+}
+
+
+int main() {
+	ios::sync_with_stdio(0), cin.tie(0);
+	
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			int dir;
+			cin >> board[i][j] >> dir;
+			fish[board[i][j]] = { i, j, dir - 1, true };
+		}
+	}
+
+	dfs(board[0][0], 0, 0, fish[board[0][0]].dir);
+	cout << mx;
 	
 }
 
+
+
+
 /*
-	1. 물고기의 이동
-	2. 상어의 이동 dfs
+
 */
