@@ -42,8 +42,8 @@ void MoveFish(int sx, int sy) {
 			if (OOB(nx, ny) || (nx == sx && ny == sy)) continue;
 			break;
 		}
-		
-		
+
+
 		if (dd == 8) continue;
 
 		if (board[nx][ny] >= 1 && board[nx][ny] <= 16) {
@@ -57,7 +57,7 @@ void MoveFish(int sx, int sy) {
 
 			board[f.x][f.y] = board[nx][ny];
 			board[nx][ny] = i;
-			
+
 		}
 		else if (board[nx][ny] == 0) {
 			Fish f = fish[i];
@@ -73,8 +73,10 @@ void MoveFish(int sx, int sy) {
 }
 
 void dfs(int eatten, int sx, int sy, int sd) {
-	
+
 	// 1. 상어자리 물고기 섭취
+	eatten += board[sx][sy];
+	sd = fish[board[sx][sy]].dir;
 	fish[board[sx][sy]].isLived = false;
 	board[sx][sy] = 0;
 	mx = max(mx, eatten);
@@ -86,14 +88,14 @@ void dfs(int eatten, int sx, int sy, int sd) {
 	// 3. 상어 이동
 	int tmp[4][4];
 	Fish ftmp[17];
-	Copy(tmp, board, ftmp, fish); 
+	Copy(tmp, board, ftmp, fish);
 
 	for (int p = 1; p <= 3; p++) {
 		int nx = sx + p * dx[sd];
 		int ny = sy + p * dy[sd];
 		if (OOB(nx, ny) || board[nx][ny] == 0) continue;
-		
-		dfs(eatten + board[nx][ny], nx, ny, fish[board[nx][ny]].dir);
+
+		dfs(eatten, nx, ny, sd);
 
 		Copy(board, tmp, fish, ftmp);
 	}
@@ -103,7 +105,7 @@ void dfs(int eatten, int sx, int sy, int sd) {
 
 int main() {
 	ios::sync_with_stdio(0), cin.tie(0);
-	
+
 
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -113,14 +115,7 @@ int main() {
 		}
 	}
 
-	dfs(board[0][0], 0, 0, fish[board[0][0]].dir);
+	dfs(0, 0, 0, 0);
 	cout << mx;
-	
+
 }
-
-
-
-
-/*
-
-*/
