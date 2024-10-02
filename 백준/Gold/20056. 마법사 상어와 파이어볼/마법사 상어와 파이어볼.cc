@@ -1,107 +1,119 @@
 #include <iostream>
 #include <vector>
-#include <tuple>
 using namespace std;
-
-struct Fireball {
-	int x, y, m, s, d;
-};
-
-vector<int> board[52][52];
-vector<Fireball> fire; 
 const int dx[8] = { -1, -1, 0, 1, 1, 1, 0, -1 };
 const int dy[8] = { 0, 1, 1, 1, 0, -1, -1, -1 };
 
+struct Fire {
+	int r, c, m, s, d;
+};
+
 int n, m, k;
 
-pair<int, int> ProcessOOB(int x, int y) {
-	if (x < 0) x = n + x;
-	else if (x >= n) x = x - n;
+vector<int> tmp[52][52];
+vector<Fire> fire;
 
-	if (y < 0) y = n + y;
-	else if (y >= n) y = y - n;
-
-	return { x, y };
+void ProcessOOB(int& x, int& y) {
+	if (x >= n) x = x - n;
+	else if (x < 0) x = n + x;
+	
+	if (y >= n) y = y - n;
+	else if (y < 0) y = n + y;
 }
 
-void Move() {
-	for (int i = 0; i < fire.size(); i++) {
-		int nx = fire[i].x + ( fire[i].s % n ) * dx[fire[i].d];
-		int ny = fire[i].y + ( fire[i].s % n ) * dy[fire[i].d];
-		tie(nx, ny) = ProcessOOB(nx, ny);
-		board[nx][ny].push_back(i);
+
+void MoveMerge() {
+	
+	
+	for (int idx = 0; idx < fire.size(); idx++) {
+		auto f = fire[idx];
+		int nx = f.r + (f.s % n) * dx[f.d];
+		int ny = f.c + (f.s % n) * dy[f.d];
+		ProcessOOB(nx, ny);
+		tmp[nx][ny].push_back(idx);
+		fire[idx].r = nx;
+		fire[idx].c = ny;
 	}
-}
 
-void Merge() {
-	vector<Fireball> temp;
+
+	vector<Fire> ftmp;
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if (board[i][j].empty()) continue;
+			if (tmp[i][j].empty()) continue;
+			if (tmp[i][j].size() == 1) {
+				int idx = tmp[i][j].front();
+				ftmp.push_back(fire[idx]);
+			}
+			else if (tmp[i][j].size() >= 2) {
+				int m, s, oddCnt, size;
+				m = s = oddCnt = 0; size = tmp[i][j].size();
 
-			if (board[i][j].size() == 1) {
-				int idx = board[i][j].front();
-				temp.push_back({ i , j, fire[idx].m, fire[idx].s, fire[idx].d });
-			}
-			else if (board[i][j].size() >= 2) {
-				int mm = 0;
-				int ms = 0;
-				int flag = 0;
-				vector<int> dir;
-				for (auto idx : board[i][j]) {
-					mm += fire[idx].m;
-					ms += fire[idx].s;
-					flag += fire[idx].d % 2;
+				for (int idx : tmp[i][j]) {
+					auto f = fire[idx];
+					m += f.m; 
+					s += f.s;
+					oddCnt += f.d % 2;
 				}
-				mm /= 5;
-				ms /= board[i][j].size();
-				 
-				if (flag == board[i][j].size() || flag == 0)
-					dir = { 0,2,4,6 };
-				else
-					dir = { 1,3, 5,7 };
+
+				m /= 5; s /= size;
+				if (m <= 0) {
+					tmp[i][j].clear();
+					continue;
+				}
 				
-				for (int d : dir) {
-					if (mm <= 0) break;
-					temp.push_back({ i, j, mm, ms, d });
-				}		
+				if (oddCnt == size || oddCnt == 0) {
+					for (int d : {0, 2, 4, 6})
+						ftmp.push_back({ i, j, m, s, d });
+				}
+				else {
+					for (int d : {1, 3, 5, 7})
+						ftmp.push_back({ i, j, m, s, d });
+				}
 			}
-			board[i][j].clear();
+			tmp[i][j].clear();
 		}
 	}
-	fire = temp;
+	fire = ftmp;
 }
 
 int getAns() {
 	int ret = 0;
-	for (auto f : fire) {
+	for (auto f : fire)
 		ret += f.m;
-	}
 	return ret;
 }
 
-int main(void) {
+int main() {
+	ios::sync_with_stdio(0), cin.tie(0);
 
 	cin >> n >> m >> k;
 
-	while (m--) {
-		int x, y, m, s, d;
-		cin >> x >> y >> m >> s >> d;
-		x--; y--;
-		fire.push_back({ x, y, m, s, d });
+	for (int i = 0; i < m; i++) {
+		int r, c, m, s, d;
+		cin >> r >> c >> m >> s >> d;
+		fire.push_back({ r-1, c-1, m, s, d });
 	}
 
+	int ans = 0;
 	while (k--) {
-		Move();
-		Merge();
+		MoveMerge();
 	}
-
-	int ans = getAns();
+	
+	ans = getAns(); 
 	cout << ans;
 }
 
-
 /*
-	파이어볼 구조체 배열과
-	인덱스 보드
+	
+	격자 연결
+
+	이동 -> 결합
+
+
+	1. 구조체 배열 -> 인덱스보드
+
+	move : 구조체 배열을 순회하며 이동, 인덱스보드 업데이트
+	merge : 인덱스보드를 순회하며 ( 구조체 배열 순회시 동일자리 인덱스 찾기 어렵)
+			merge
+
 */
