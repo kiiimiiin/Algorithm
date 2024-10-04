@@ -1,24 +1,19 @@
 #include <bits/stdc++.h>
-#define IDX first
-#define PR second
+#define IDX second
+#define PR first
 using namespace std;
 
-bool ExistHighPri(deque<pair<int,int>>& dq, int targetPr){
-    for(auto p : dq){
-        if(p.PR > targetPr) return true;
-    }
-    return false;
-}
 int solution(vector<int> priorities, int location) {
     int answer = 0;
 
     deque<pair<int,int>> dq; 
     for(int i = 0; i < priorities.size(); i++)
-        dq.push_back({i, priorities[i]});
+        dq.push_back({priorities[i], i});
     
     while(!dq.empty()){
         auto process = dq.front();
-        if(ExistHighPri(dq, process.PR)){
+        auto mxProcess = *max_element(dq.begin(), dq.end());
+        if(process.PR < mxProcess.PR){
             dq.push_back(process);
             dq.pop_front();
         }else {
