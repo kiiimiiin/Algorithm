@@ -1,37 +1,54 @@
-#include <algorithm>
-#include <utility>
-#include <deque>
-#include <iostream>
-#include <vector>
-
+#include <bits/stdc++.h>
+#define IDX first
+#define PR second
 using namespace std;
 
-int solution(vector<int> priorities, int location) {
-    deque<pair<int,int>> q; // 프로세스 우선순위, location
-    
-    for(int i = 0 ; i < priorities.size() ; i++){
-        q.push_back({priorities[i] ,i });
+bool ExistHighPri(deque<pair<int,int>>& dq, int targetPr){
+    for(auto p : dq){
+        if(p.PR > targetPr) return true;
     }
+    return false;
+}
+int solution(vector<int> priorities, int location) {
+    int answer = 0;
+
+    deque<pair<int,int>> dq; 
+    for(int i = 0; i < priorities.size(); i++)
+        dq.push_back({i, priorities[i]});
     
-    int answer = 0; 
-    while(1){
-        
-        int mx_pri = (*max_element(q.begin(), q.end())).first;
-        
-        
-        
-        if( q.front().first < mx_pri){ // 1. 대기중 프로세스보다 큰 우선순위 존재
-            q.push_back(q.front());
-            q.pop_front(); 
-        }
-        else{ // 2. 존재 x -> 프로세스 실행
+    while(!dq.empty()){
+        auto process = dq.front();
+        if(ExistHighPri(dq, process.PR)){
+            dq.push_back(process);
+            dq.pop_front();
+        }else {
             answer++;
-            if( q.front().second == location ){
-                return answer;
-            }
-            q.pop_front();
+            if(process.IDX == location) break;
+            dq.pop_front();
         }
+          
     }
     
     return answer;
+    
 }
+
+/*
+    priority 길이만큼 순회
+    front보다 큰 우선순위 존재 -> back으로
+    없으면 -> pop
+    
+    100 * 100
+    
+    2 1 3 2
+    A B C D
+    
+    B C D A
+    C D A B
+    D A B | C
+    A B | D
+    B | A 
+    | B
+    
+    
+*/
