@@ -1,26 +1,27 @@
-#include <bits/stdc++.h>
-using namespace std;
-int answer;
+#include <string>
+#include <vector>
 
-void dfs(vector<int>& numbers, int target, int total, int k){
-    if(k == numbers.size()){
-        if(total == target)
-            answer++;
-        return;
-    }
-    
-    dfs(numbers, target, total + numbers[k], k + 1);
-    dfs(numbers, target, total - numbers[k], k + 1);
-}
+using namespace std;
 
 int solution(vector<int> numbers, int target) {
+    int answer = 0;
+    int n = numbers.size();
     
-    dfs(numbers, target, 0, 0);
+    for(int cse = 0; cse < ( 1 << n ); cse++){
+        
+        int brute = cse;
+        int val = 0;
+        for(int idx = 0 ; idx < n; idx++){
+            int isPlus = brute % 2;
+            brute /= 2;
+            if(isPlus)
+                val += numbers[idx];
+            else
+                val -= numbers[idx];
+        }
+        
+        if(val == target) 
+            answer++;
+    }
     return answer;
 }
-
-/*
-    N = 20 -> dfs 
-    
-    수의 끝까지 +, -를 나누며 dfs
-*/
