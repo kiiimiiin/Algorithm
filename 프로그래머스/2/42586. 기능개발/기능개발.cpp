@@ -1,46 +1,38 @@
 #include <bits/stdc++.h>
+
 using namespace std;
 
 vector<int> solution(vector<int> progresses, vector<int> speeds) {
     vector<int> answer;
+    int cnt, top;
     
-    vector<int> dates;
-    for(int i = 0 ; i < speeds.size(); i++){
-        int date = (100 - progresses[i]) / speeds[i];
-        date += (100 - progresses[i]) % speeds[i] ? 1 : 0; 
-        dates.push_back(date);
-    }
-    
-    for(int i = 0 ; i < dates.size(); i++)
-        cout << dates[i] << ' ';
-    
-    int num = dates[0];
-    int cnt = 1;
-    
-    for(int i = 1 ; i < dates.size(); i++){
-        if(num < dates[i]){
+    for(int i = 0 ; i < progresses.size(); i++){
+        int date = (100 - progresses[i]) / speeds[i] + ( (100 - progresses[i]) % speeds[i] != 0);
+        
+        if(i == 0){
+            top = date;
+            cnt = 1;
+            continue;
+        }
+        
+        if(date > top){
             answer.push_back(cnt);
             cnt = 1;
-            num = dates[i];
-        }else{
-            cnt++;
+            top = date;
         }
+        else
+           cnt++;
     }
+    
     answer.push_back(cnt);
-
+    
     return answer;
 }
 
 /*
-    각 일자를 계산 
+    각 작업일자를 구함 : ( 100 - pr / sp ) + ( 100 - pr % sp )
     
-    ex) 7 3 9 
-    
-    5 10 1 1 20 1
-    
-    -> 1 3 2 
-    
-    순회하며 현재값 보다 큰 수가 나타날 때 까지 cnt
-    -> 나타나면 cnt push 
-    
+    7 3 9
+    앞보다 작거나 같으면 cnt를 계속 셈, 
+    앞에 일자보다 커지는 순간 cnt 다시 셈, cnt push
 */
