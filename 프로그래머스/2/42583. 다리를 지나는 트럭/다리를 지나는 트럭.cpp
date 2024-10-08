@@ -3,19 +3,17 @@ using namespace std;
 
 int solution(int bridge_length, int weight, vector<int> truck_weights) {
     int answer = 0;
-    int passed = 0;
     int n = truck_weights.size();
     int weight_on_bridge = 0;
     deque<int> dq(truck_weights.begin(), truck_weights.end()); // 대기 트럭
     queue<pair<int,int>> q; // 다리를 건너는 트럭 (무게, 시간)
     
-    while(passed != n){
+    while(1){
         answer++; 
         
         if(!q.empty() && answer == q.front().second){
             weight_on_bridge -= q.front().first;
             q.pop();
-            passed++;
         }
         
         if(!dq.empty()){
@@ -25,6 +23,11 @@ int solution(int bridge_length, int weight, vector<int> truck_weights) {
                 weight_on_bridge += nxt_weight;
                 dq.pop_front();
             }    
+        }
+        
+        if(dq.empty()) {
+            answer = q.back().second;
+            break;
         }
         
             
