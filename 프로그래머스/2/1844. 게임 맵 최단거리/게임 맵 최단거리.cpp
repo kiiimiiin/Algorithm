@@ -1,21 +1,22 @@
 #include <bits/stdc++.h>
 #define X first
 #define Y second
+const int dx[4] = {1, 0, -1, 0};
+const int dy[4] = {0, 1, 0, -1};
 using namespace std;
-int dist[102][102];
-const int dx[4] = { 1, 0, -1 ,0};
-const int dy[4] = { 0, 1, 0, -1};
 
 int solution(vector<vector<int> > maps)
 {
+    int answer = 0;
     int n = maps.size();
     int m = maps[0].size();
-    int answer = 0;
-    for(int i = 0 ; i < n ; i++) fill(dist[i], dist[i] + m, -1); 
     
+    int dist[102][102];
     queue<pair<int,int>> q;
-    dist[0][0] = 1;
+    for(int i = 0; i < n; i++) fill(dist[i], dist[i] + m, -1);
+    
     q.push({0,0});
+    dist[0][0] = 0;
     
     while(!q.empty()){
         auto cur = q.front(); q.pop();
@@ -29,8 +30,8 @@ int solution(vector<vector<int> > maps)
         }
     }
     
-    answer = dist[n-1][m-1];
     
+    answer = ( dist[n-1][m-1] != -1 ? dist[n-1][m-1] + 1 : -1 );
     
     return answer;
 }
