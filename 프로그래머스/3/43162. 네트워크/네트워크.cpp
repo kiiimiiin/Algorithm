@@ -1,30 +1,27 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+void dfs(int cur, int vis[200], vector<vector<int>>& computers, int n){
+    for(int idx = 0; idx < n; idx++){
+        if(vis[idx]) continue;
+        if(computers[cur][idx]){
+            vis[idx] = 1;
+            dfs(idx, vis, computers, n); 
+        }
+    }
+}
+
 int solution(int n, vector<vector<int>> computers) {
     int answer = 0;
     int vis[200] = {}; 
-    queue<int> q;
-   
+
     for(int idx = 0; idx < n; idx++){
         if(vis[idx]) continue;
         vis[idx] = 1;
-        q.push(idx); 
-        while(!q.empty()){
-            auto cur = q.front(); q.pop();
-            for(int idx = 0; idx < n; idx++){
-                if(vis[idx]) continue;
-                if(computers[cur][idx]){
-                    vis[idx] = 1;
-                    q.push(idx);
-                }
-            }
-        }
+        
+        dfs(idx, vis, computers, n);    
         answer++;
     }
-    
-    
-    
     
     return answer;
 }
