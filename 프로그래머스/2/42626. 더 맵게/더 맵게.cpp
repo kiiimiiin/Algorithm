@@ -5,26 +5,36 @@ using namespace std;
 int solution(vector<int> scoville, int K) {
     int answer = 0;
     priority_queue<int, vector<int>, greater<int>> pq(scoville.begin(), scoville.end());
+    bool flag = false;
     
-    while(pq.top() < K){
-        if(pq.size() == 1){
-            answer = -1;
+    while(1) {
+        if(pq.top() >= K){
+            flag = true;
             break;
         }
         
-        int newVal = pq.top();
+        if(pq.size() < 2)
+            break;
+        
+        int val = pq.top();
         pq.pop();
-        newVal += pq.top() * 2;
+        val += 2 * pq.top();
         pq.pop();
-        pq.push(newVal);
-        answer++;
+        pq.push(val);
+        answer++; 
     }
     
-    return answer;
+    return (flag ? answer : -1 );
 }
 
 /*
-    최소힙의 top값이 k이상이면 break
-    하나 남으면서 k보다 작으면 -1이며 break
-    최소힙에서 2개씩 섞으며 push
+     모든 음식의 스코빌 지수가 K 이상 -> 가장 작은 음식도 K이상이여야함
+     
+     최소힙)
+     
+     힙의 사이즈가 2 이상인동안 
+     
+     힙의 탑이 k보다 크면 break
+     힙의 탑이 k보다 작으면 섞기 진행
+
 */
