@@ -1,36 +1,30 @@
-#include <bits/stdc++.h>
-using namespace std;
-int sum[2004];
+#include <string>
+#include <vector>
+#include <unordered_set>
 
+using namespace std;
+
+int getNxt(int num, int n){
+    return num % n;
+}
 int solution(vector<int> elements) {
     int answer = 0;
-    int len = elements.size();
+    int n = elements.size();
     unordered_set<int> s;
-    
-    for(int i = 0 ; i < len - 1; i++){
-        elements.push_back(elements[i]);
+    for(int len = 1; len <= n; len++){
+        for(int i = 0; i < n; i++){
+            int sum = 0;
+            for(int j = 0; j < len; j++){
+                int nxt = getNxt(i + j, n);
+                sum += elements[nxt];
+            }
+            s.insert(sum);
+        }
     }
-    
-    sum[0] = elements[0];
-    for(int i = 1; i < elements.size(); i++){
-        sum[i] = sum[i - 1] + elements[i];
-        cout << sum[i] << ' ';
-    }
-    
-    for(int l = 0; l < len; l++){
-        s.insert(sum[l]);
-        for(int i = 1; i < len; i++)
-            s.insert(sum[i + l] - sum[i - 1]);
-    }
-    
     answer = s.size();
-
     return answer;
 }
 
 /*
-    앞과 끝을 이어붙인다
-    7 9 1 1 4 7 9 1 1 4
-    길이별로 배열순회
-    O(n^2)
+    O(100만)
 */
