@@ -3,32 +3,37 @@
 
 using namespace std;
 
-int getCnt(int tmp){
-    int cnt = 0;
-    while(tmp){
-        if (tmp % 2) cnt++;
-        tmp /= 2;
+int getOneCnt(int num){
+    int ret = 0;
+    while(num){
+        if(num % 2)
+            ret++;
+        num /= 2;
     }
-    return cnt;
+    return ret;
 }
+
 int solution(int n) {
     int answer = 0;
+    int one_cnt = getOneCnt(n);
+    int nxt = n + 1;
+    while(one_cnt != getOneCnt(nxt)) 
+        nxt++;
     
-    int cnt = getCnt(n); 
-    
-    
-    for(int i = n + 1; i <= 1000000 ; i++){
-        if( cnt == getCnt(i)){
-            answer = i;
-            break;
-        }
-    }    
+    answer = nxt;
     
     return answer;
 }
 
 /*
-    2 | 4 ... 0
-    2 | 2 ... 0
-        1 
+    2진변환
+    
+    2 | 78 .. 0
+        39 .. 1
+        19 .. 1
+        9  .. 1
+        4  .. 0
+        2  .. 0
+        1  
+
 */
