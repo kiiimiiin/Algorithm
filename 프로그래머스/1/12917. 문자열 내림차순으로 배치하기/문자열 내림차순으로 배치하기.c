@@ -18,8 +18,5 @@ char* solution(const char* s) {
             }
         }
     }
-    
-    answer[len] = '\0';
-
     return answer;
 }
