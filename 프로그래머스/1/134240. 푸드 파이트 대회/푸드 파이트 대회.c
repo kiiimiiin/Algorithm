@@ -12,7 +12,7 @@ char* solution(int food[], size_t food_len) {
         len += 2 * food[i];
     }
     
-    char* answer = (char*)malloc(len);
+    char* answer = (char*)malloc(len + 1);
     
     int idx = 1;
     for(int i = 0; i < len / 2; ){
