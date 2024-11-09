@@ -1,21 +1,30 @@
 #include <string>
 #include <vector>
-#include <set>
+#include <unordered_set>
 
 using namespace std;
 
+int getNxt(int num, int n){
+    return num % n;
+}
 int solution(vector<int> elements) {
-    set<int> S;
-
+    int answer = 0;
     int n = elements.size();
-
-    for (int i = 0 ; i < n ; ++i) {
-        int sum = 0;
-        for (int j = i ; j < i + n ; ++j) {
-            sum += elements[j % n];
-            S.insert(sum);
+    unordered_set<int> s;
+    for(int len = 1; len <= n; len++){
+        for(int i = 0; i < n; i++){
+            int sum = 0;
+            for(int j = 0; j < len; j++){
+                int nxt = getNxt(i + j, n);
+                sum += elements[nxt];
+            }
+            s.insert(sum);
         }
     }
-
-    return S.size();
+    answer = s.size();
+    return answer;
 }
+
+/*
+    O(100만)
+*/
