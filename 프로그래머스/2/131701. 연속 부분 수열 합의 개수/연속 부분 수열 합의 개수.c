@@ -9,12 +9,10 @@ bool vis[MX];
 int solution(int elements[], size_t elements_len) {
     int answer = 0;
     
-    for(int len = 0; len < elements_len; len++){
-        for(int j = 0; j < elements_len; j++){
-            int sum = 0;
-            for(int k = j ; k <= j + len; k++)
-                sum += elements[k % elements_len];
-            
+    for(int i = 0; i < elements_len; i++){
+        int sum = 0;
+        for(int j = i; j < i + elements_len; j++){
+            sum += elements[j % elements_len];
             if(!vis[sum]){
                 vis[sum] = true;
                 answer++;
