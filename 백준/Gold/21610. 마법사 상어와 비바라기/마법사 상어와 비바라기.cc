@@ -1,70 +1,74 @@
 #include <iostream>
-#include <queue>
+#include <vector>
 #include <utility>
 #include <tuple>
+#include <queue>
 #define X first
 #define Y second
-const int dx[8] = { 0,-1,-1,-1,0,1,1,1 };
-const int dy[8] = { -1,-1,0,1,1,1,0,-1 };
 using namespace std;
-
+int dx[8] = { 0,-1,-1,-1,0,1,1,1 };
+int dy[8] = { -1,-1,0,1,1,1,0,-1 };
+int n, m;
 int board[52][52];
 int cloud[52][52];
-int n, m, d, s;
 
-pair<int, int> ProcessOOB(int x, int y) {
-	if (x < 0) x = n + x;
-	else if (x >= n) x = x - n;
+void ProcessOOB(int& nx, int& ny) {
+	if (nx >= n) nx = nx - n;
+	else if (nx < 0) nx = n + nx; 
 
-	if (y < 0) y = n + y;
-	else if (y >= n) y = y - n;
-	
-	return { x, y };
+	if (ny >= n) ny = ny - n;
+	else if (ny < 0) ny = n + ny;
 }
 
-void doMagic(int d, int s) {
-	int temp[52][52] = {};
+void Magic(int dir, int s) {
+	// move cloud
 
-	// 1. 구름 이동, 비내리기
+	int tmp[52][52] = {};
+
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if (cloud[i][j]) {
-				int nx = i + ( s * dx[d] ) % n;
-				int ny = j + ( s * dy[d] ) % n;
-				tie(nx, ny) = ProcessOOB(nx, ny);
-				temp[nx][ny]++;
-				board[nx][ny]++;
-				cloud[i][j] = 0;
-			}
+			if (cloud[i][j] == 0) continue;
+			int nx = i + (s % n) * dx[dir];
+			int ny = j + (s % n) * dy[dir];
+			ProcessOOB(nx, ny);
+			tmp[nx][ny] = 1;
+			cloud[i][j] = 0;
 		}
 	}
 
-	// 2. 물증가 칸 마법시전
+	//rain
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < n; j++)
+			if (tmp[i][j])
+				board[i][j]++;
+	
+	// copy
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if (temp[i][j]) {
-				for (int dir : { 1, 3, 5, 7}) {
-					int nx = i + dx[dir];
-					int ny = j + dy[dir];
+			if (tmp[i][j]) {
+				int cnt = 0;
+				for (auto d : { 1, 3, 5, 7 }) {
+					int nx = i + dx[d];
+					int ny = j + dy[d];
 					if (nx < 0 || nx >= n || ny < 0 || ny >= n) continue;
-					if (board[nx][ny]) {
-						board[i][j]++;
-					}
+					if (board[nx][ny] == 0) continue;
+					cnt++;
 				}
+				board[i][j] += cnt;
 			}
 		}
 	}
 
-	// 3. 구름 재 생성
+	// make cloud
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if (board[i][j] >= 2 && !temp[i][j]) {
-				board[i][j] -= 2;
+			if (tmp[i][j]) continue;
+			if (board[i][j] >= 2) {
 				cloud[i][j] = 1;
+				board[i][j] -= 2;
 			}
 		}
 	}
-
 }
 
 int getAns() {
@@ -77,35 +81,23 @@ int getAns() {
 	return ret;
 }
 
-
-int main(void) {
-	ios::sync_with_stdio(0), cin.tie(0); 
-
+int main() {
 	cin >> n >> m;
-
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			cin >> board[i][j];
 		}
 	}
 
-	cloud[n - 1][0] = cloud[n - 1][1] = 
-		cloud[n - 2][0] = cloud[n - 2][1] = 1;
-
-
+	cloud[n - 1][0] = cloud[n - 1][1]
+		= cloud[n - 2][0] = cloud[n - 2][1] = 1;
 
 	while (m--) {
-		cin >> d >> s; 
-		d--;
-		doMagic(d, s);
+		int d, s;
+		cin >> d >> s;
+		Magic(d - 1, s);
 	}
 
-	int ans;
-	ans = getAns();
+	int ans = getAns();
 	cout << ans;
-	
 }
-
-/*
-	구름 보드
-*/
