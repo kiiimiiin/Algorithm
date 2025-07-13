@@ -5,32 +5,32 @@ using namespace std;
 
 vector<int> solution(vector<int> progresses, vector<int> speeds) {
     vector<int> answer;
-    int cnt = 0;
-    int top = -0x7f7f7f7f;
+    vector<int> dates;
     
-    for(int i = 0; i < progresses.size(); i++){
-        int val = ( 100 - progresses[i] ) / speeds[i];
-        val += (100 - progresses[i]) % speeds[i] > 0;
-        if(i == 0){
-            top = val;
-            cnt++;
-            continue;
-        }
-        
-        if(top < val){
-            top = val;
-            answer.push_back(cnt);
-            cnt = 1;
-            continue;
-        }
-        
-        cnt++;
+    for(int i = 0 ; i < progresses.size(); i++){
+        int date = ( 100 - progresses[i] ) / speeds[i] + 
+            ( ( 100 - progresses[i] ) % speeds[i] ? 1 : 0 ) ;    
+        dates.push_back(date);
     }
     
+    int cnt = 0;
+    int lastDate = 0;
+    for(int i = 0 ; i < dates.size(); i++){
+        if(i == 0){
+            lastDate = dates[i];
+            cnt++;
+        }
+        else if(dates[i] <= lastDate){
+            cnt++;
+        }
+        else{
+            answer.push_back(cnt);
+            lastDate = dates[i];
+            cnt = 1;
+        }
+    }
+            
     answer.push_back(cnt);
+    
     return answer;
 }
-
-/*
-    마지막 몇개 세고있는지는 종료전에 반영한다.
-*/
