@@ -1,60 +1,43 @@
 #include <string>
 #include <vector>
-#include <queue>
-#include <utility>
+#include <algorithm>
+#include <iostream>
 using namespace std;
 
-bool IsOneDifferent(string s1, string s2){
-    int cnt = 0;
-    for(int i = 0 ; i < s1.length(); i++){
-        if(s1[i] != s2[i]) cnt++;
+bool IsOneDifferent(string str1, string str2){
+    int diffCnt = 0 ;
+    for(int i = 0 ; i < str1.length(); i++)
+        if( str1[i] != str2[i] )
+            diffCnt++;
+    
+    return diffCnt == 1 ;     
+}
+
+void dfs(string str, string target, int cnt, int& answer,vector<string>& words, bool vis[]){
+    if(str == target){
+        answer = min(cnt, answer);
+        // cout << str << ' ';
+        return;
     }
     
-    if(cnt == 1) return true;
-    return false; 
+    for(int i = 0; i < words.size(); i++){
+        if(vis[i] || !IsOneDifferent(str, words[i])) continue;
+        // cout << cnt << ' '; 
+        vis[i] = true;
+        dfs(words[i], target, cnt + 1, answer, words, vis);
+        vis[i] = false;
+    }
 }
 
 int solution(string begin, string target, vector<string> words) {
-    int answer = 0;
-    int n = words.size();
-    int tIdx = -1;
-    vector<int> vis(n);
-    queue<pair<string, int>> q;
+    int answer = 0x7f7f7f7f;
+    bool vis[52] = {};
+    dfs(begin, target, 0, answer , words, vis);
     
-    for(int i = 0; i < n; i++){
-        if(target == words[i]){
-            tIdx = i;
-            break;
-        }
-    }
-    
-    if(tIdx == -1) return 0;
-    
-    q.push({begin, 0});
-    
-    while(!q.empty()){
-        auto cur = q.front(); q.pop();
-        string curs = cur.first;
-        int level = cur.second;
-        
-        if(curs == target && vis[tIdx]){
-            answer = level;
-            break;
-        }
-        
-        for(int i = 0 ; i < n; i++){ // 하나만 다르면 q넣고 방문처리
-            if(vis[i]) continue;
-            if(IsOneDifferent(curs, words[i])){
-                q.push({words[i], level + 1});
-                vis[i] = true;
-            }
-        }
-    }
-    return answer;
+    return answer == 0x7f7f7f7f ? 0 : answer;
 }
 
-
-/*
-    글자수가 한글자 씩 다른경우에 bfs를 진행한다.
-    가장 먼저 target을 방문했을 때 bfs를 그만둔다.
+/* 
+    현재 단어와 하나 다르면 dfs
+    target 단어와 같게 되면 단계수 반환 (answer은 최소로 추적)
 */
