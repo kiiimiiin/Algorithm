@@ -1,27 +1,24 @@
 #include <iostream>
+#include <algorithm>
 using namespace std;
-int n, m;
-int d[100002]; 
+int d[100002]; // i번째 수 까지 합
 
-int main(){
+int main()
+{
     ios::sync_with_stdio(0), cin.tie(0);
+    int n, m ;
     cin >> n >> m;
+    
     for(int i = 1; i <= n; i++){
-        int x;
-        cin >> x;
-        d[i] = d[i-1] + x; 
+        int num;
+        cin >> num;
+        d[i] = d[i-1] + num;
     }
     
     while(m--){
-        int i, j;
-        cin >> i >> j; 
-        cout << d[j] - d[i-1] << '\n';
+        int left, right;
+        cin >> left >> right;
+        cout << d[right] - d[left - 1] << '\n';
     }
+    return 0;
 }
-
-/*
-   sum을 처음부터 구해서 구간합을 구함
-   그냥 완탐으로 합구하면 시간초과
-    d[i] : i까지의 수열 합
-    d[i] = d[i-1] + a[i];
-*/
