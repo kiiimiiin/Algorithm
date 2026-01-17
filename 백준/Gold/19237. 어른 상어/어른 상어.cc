@@ -1,154 +1,134 @@
-#include <algorithm>
 #include <iostream>
-#include <vector>
-#define X first
-#define Y second
+#include <utility>
 using namespace std;
-const int dx[4] = { -1, 1, 0, 0 };
-const int dy[4] = { 0, 0, -1, 1 };
 int n, m, k;
-int board[22][22];
-int table[402][4][4];
-pair<int, int> smell[22][22];
+int board[21][21];
+int dx[4] = { -1,1,0,0 };
+int dy[4] = { 0, 0, -1,1 };
+pair<int, int> smell[21][21];
+
 
 struct Shark {
-	int x, y, dir;
-	bool isLive; 
+	int x, y, dir; 
+	int table[4][4];
+	int isLived = false;
 };
 
-Shark sharks[402];
+Shark shark[401];
 
-bool OOB(int x, int y) {
-	return x < 0 || x >= n || y < 0 || y >= n; 
-}
-
-void doSmell() {
-
-	for (int i = 0; i < n; i++) { // 냄새 시간 감소
-		for (int j = 0; j < n; j++) {
-			if (smell[i][j].Y > 0)
-				smell[i][j].Y--;
-			
-			if (smell[i][j].Y == 0)
-				smell[i][j].X = 0; 
-		}
+bool IsOnlyOneShark() {
+	for (int idx = 2; idx <= m; idx++) {
+		if (shark[idx].isLived == true) return false;
 	}
-
-	for (int i = 1; i <= m; i++) { // 상어 위치에 냄새 추가
-		if (!sharks[i].isLive) continue;
-		smell[sharks[i].x][sharks[i].y] = { i, k };
+	if (shark[1].isLived == true) {
+		return true;
+	}
+	else {
+		cout << "Is Error\n";
+		return false;
 	}
 }
 
-
-void move() {
-	for (int i = m; i > 0; i--) {
-		if (!sharks[i].isLive) continue;
+void MoveShark() {
+	for (int idx = 1; idx <= m; idx++) {
+		if (shark[idx].isLived == false) continue;
 		
-		bool toClean = false;
-		for (int dir = 0; dir < 4; dir++) { // 아무 냄새 없는 칸
-			int nd = table[i][sharks[i].dir][dir];
-			int nx = sharks[i].x + dx[nd];
-			int ny = sharks[i].y + dy[nd];
-			if (OOB(nx, ny)) continue;
-			if (smell[nx][ny].Y == 0) {
-				if (board[nx][ny] > 0) // 상어를 만나 eat
-					sharks[board[nx][ny]].isLive = false;
-
-				board[sharks[i].x][sharks[i].y] = 0;
-				board[nx][ny] = i;
-
-				sharks[i].dir = nd;
-				sharks[i].x = nx;
-				sharks[i].y = ny;
-				
-				toClean = true;
-				break; 
-			}
-		}
-		
-		if (toClean) continue;
-
-		for (int dir = 0; dir < 4; dir++) { // 냄새 있는 칸
-			int nd = table[i][sharks[i].dir][dir];
-			int nx = sharks[i].x + dx[nd];
-			int ny = sharks[i].y + dy[nd];
-			if (OOB(nx, ny)) continue;
-			if (smell[nx][ny].X == i && smell[nx][ny].Y > 0) {
-				board[sharks[i].x][sharks[i].y] = 0;
-				board[nx][ny] = i;
-
-				sharks[i].dir = nd;
-				sharks[i].x = nx;
-				sharks[i].y = ny;
+		bool IsEatten = false;
+		bool IsMoved = false;
+		for (int ddir = 0; ddir < 4; ddir++) {
+			int nd = shark[idx].table[shark[idx].dir][ddir]; 
+			int nx = shark[idx].x + dx[nd]; 
+			int ny = shark[idx].y + dy[nd];
+			if (nx < 0 || nx >= n || ny < 0 || ny >= n) continue;
+			if (smell[nx][ny].first == 0) {
+				if (board[nx][ny] >= 1 && board[nx][ny] < idx) {
+					IsEatten = true;
+					shark[idx].isLived = false;
+					board[shark[idx].x][shark[idx].y] = 0;
+					break;
+				}
+				board[shark[idx].x][shark[idx].y] = 0;
+				board[nx][ny] = idx;
+				shark[idx].x = nx;
+				shark[idx].y = ny;
+				shark[idx].dir = nd;
+				IsMoved = true;
 				break;
 			}
 		}
-		
+
+		if (IsEatten || IsMoved) continue;
+
+		for (int ddir = 0; ddir < 4; ddir++) {
+			int nd = shark[idx].table[shark[idx].dir][ddir];
+			int nx = shark[idx].x + dx[nd];
+			int ny = shark[idx].y + dy[nd];
+			if (nx < 0 || nx >= n || ny < 0 || ny >= n) continue;
+			if (smell[nx][ny].first == idx) {
+				board[shark[idx].x][shark[idx].y] = 0;
+				board[nx][ny] = idx;
+				shark[idx].x = nx;
+				shark[idx].y = ny;
+				shark[idx].dir = nd;
+				break;
+			}
+		}
 	}
 }
 
-bool existOnlyOne() {
-	for (int i = 2; i <= m; i++) {
-		if (sharks[i].isLive) return false;
+void UpdateSmell() {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (smell[i][j].first) smell[i][j].second--;
+			if (smell[i][j].second == 0) smell[i][j].first = 0;
+		}
 	}
-
-	return true;
 }
 
+void MakeSmell() {
+	for (int idx = 1; idx <= m; idx++) {
+		if (shark[idx].isLived == false) continue; 
+		smell[shark[idx].x][shark[idx].y] = { idx, k };
+	}
+}
 
 int main() {
-	ios::sync_with_stdio(0), cin.tie(0);
-
 	cin >> n >> m >> k;
-	
-
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			cin >> board[i][j];
-			if (board[i][j] > 0) {
-				sharks[board[i][j]] = { i, j, -1, true };
+			if (board[i][j] >= 1 && board[i][j] <= m) {
+				shark[board[i][j]].x = i;
+				shark[board[i][j]].y = j;
+				shark[board[i][j]].isLived = true;
 			}
 		}
 	}
 
-	for (int i = 1; i <= m; i++) {
-		int fdir;
-		cin >> fdir;
-		fdir--;
-		sharks[i].dir = fdir;
+	for (int idx = 1; idx <= m; idx++) {
+		cin >> shark[idx].dir;
+		shark[idx].dir--;
 	}
 
-	for (int i = 1; i <= m; i++) {
-		for (int j = 0; j < 4; j++) {
-			for (int k = 0; k < 4; k++) {
-				int dir;
-				cin >> dir; 
-				dir--;
-				table[i][j][k] = dir; 
+	for (int idx = 1; idx <= m; idx++) {
+		for (int dir = 0; dir < 4; dir++) {
+			for (int ddir = 0; ddir < 4; ddir++) {
+				cin >> shark[idx].table[dir][ddir]; 
+				shark[idx].table[dir][ddir]--;
 			}
 		}
 	}
-
 
 	int t = 0;
-
-	doSmell();
-	while (1) {
-		if (existOnlyOne()|| t > 1000)
+	MakeSmell();
+	for (t = 0; t <= 1000; t++) {
+		if (IsOnlyOneShark())
 			break;
-		move();
-		doSmell();
-		t++;
+		MoveShark();
+		UpdateSmell();
+		MakeSmell();
 	}
 
-	cout << (t > 1000 ? -1 : t);
+	cout << (t <= 1000 ? t : -1);
+	
 }
-
-/* 
-	상어가 냄새를 뿌림 -> 인접칸 중 하나로 이동 -> 상어의 섭취
-
-	이동방향 결정
-	아무 냄새가 없는 칸 > 없으면 자신의 냄새가 있는 칸 
-	( 가능한 칸이 여러개 일 시 상어 우선순위를 따름 ) 	
-*/
